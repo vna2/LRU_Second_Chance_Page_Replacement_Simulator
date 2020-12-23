@@ -5,41 +5,39 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
-#include <list>
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include "list.hpp"
 
 using namespace std;
 
-#include "hash_function.hpp"
-
-class Page{
-public:
-    Page(int _address, string _role, clock_t _time);
-    void print();
-    int address;
-    string role;
-    clock_t t;
-};
+#define DEBUG 3
 
 class bucket{
 public:
     bool full;
-    bucket();
-    list<Page*> page;        //pointer gia selida
-    int find(int address);
+    bool empty;
+    int bucketsz;
+    bucket(int size);
+    listPg *page;
+    int find_replace(Page *item);
+    void replace_lru(Page *pg);
     void print();
 };
 
 class hash_table{
 public:
     bucket **table;
+    int page_faults;
     int write_counter;
     int read_counter;
-    hash_table(int bucketsNo);
-    int find_position(int hash_num,Page* item);
+    int bucketsz;
+    hash_table(int bucketsNo,int bucketsz);
+    int find_replace(int hash_num,Page *item);
+    void replace_lru(int hash_num,Page *pg);
 };
+
 
 
 #endif
