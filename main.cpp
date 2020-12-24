@@ -44,7 +44,7 @@ void P2(int algorithm,int q,int bucketsno,hash_table *table){
 }
 
 void lru(int q,int bucketsno){
-    hash_table *table =new hash_table(5,10);
+    hash_table table(5,10);
     listPg *saved_page=new listPg;
     int address_num ;
     ifstream bzip_file("bzip.trace");
@@ -64,25 +64,25 @@ void lru(int q,int bucketsno){
         hex_num>>hex>>address_num;
         Page* page= new Page(address_num,role,timer);
 
-  
+
         if(role=="W")
-            table->write_counter++;
+            table.write_counter++;
         else
-            table->read_counter++;
+            table.read_counter++;
         hash_num=hash_index(address_num,bucketsno);
 
-        if(table->table[hash_num]->full){
-            if(table->table[hash_num]->find_replace(page)){
-                table->table[hash_num]->replace_lru(page);
-                table->page_faults++;
+        if(table.table[hash_num]->full){
+            if(table.table[hash_num]->find_replace(page)){
+                table.table[hash_num]->replace_lru(page);
+                table.page_faults++;
             }
         }
         else{
-            table->table[hash_num]->empty=false;
-            table->table[hash_num]->page->push_back(page);
-            if(table->table[hash_num]->bucketsz==table->table[hash_num]->page->length)
-                table->table[hash_num]->full=true;
-            table->page_faults++;
+            table.table[hash_num]->empty=false;
+            table.table[hash_num]->page->push_back(page);
+            if(table.table[hash_num]->bucketsz==table.table[hash_num]->page->length)
+                table.table[hash_num]->full=true;
+            table.page_faults++;
         }
 
     }

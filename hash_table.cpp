@@ -16,7 +16,7 @@ bucket::bucket(int sz){
     this->empty=true;
     this->full=false;
     this->bucketsz=sz;
-    //page= new listPg;
+    page= new listPg;
 
 }
 
@@ -37,6 +37,7 @@ hash_table::hash_table(int bucketsNo,int bucketsz){
     this->read_counter=0;
     this->page_faults=0;
     this->bucketsz=0;
+    this->table[bucketsz] = new bucket(bucketsz);
     for (int i = 0; i < bucketsNo; i++) {
         this->table[i]=new bucket(bucketsz);
     }
