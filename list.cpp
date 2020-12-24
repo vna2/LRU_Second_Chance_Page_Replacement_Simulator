@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Page::Page(int _address,string _role,clock_t _time){
+Page::Page(string _address,string _role,clock_t _time){
     this->address=_address;
     this->role=_role;
     this->t=_time;
@@ -21,11 +21,11 @@ int listPg::find_replace(Page *pg){
             //replace
             temp->r->role=pg->role;
             temp->r->t=pg->t;
-            return 0;
+            return 1;
         }
         temp=temp->next;
     }
-    return 1;
+    return 0;
 }
 
 void listPg::replace_lru(Page *pg){
@@ -39,7 +39,7 @@ void listPg::replace_lru(Page *pg){
         }
         temp=temp->next;
     }
-    
+
     head->r->role=pg->role;
     head->r->t=pg->t;
 }

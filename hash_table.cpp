@@ -24,20 +24,26 @@ int bucket::find_replace(Page *item){
     return page->find_replace(item);
 }
 
-void bucket::print(){
+void hash_table::print(){
+    cout << bucketsNo<<endl;
     cout << "~~~~~~PRINT BUCKET~~~~~~~\n";
-//     for(int a = 0; a < page.size(); a ++){
-//             cout<< "bucket: "<<a<<endl;
-//             page[a]->print();
-//     }
+    for(int a = 0; a < bucketsNo; a ++){
+            cout<< "bucket: "<<a<<endl;
+            table[a]->print();
+    }
 }
 
-hash_table::hash_table(int bucketsNo,int bucketsz){
+void bucket::print(){
+    page->print();
+}
+class bucket;
+hash_table::hash_table(int bucketsNo_,int bucketsz){
     this->write_counter=0;
     this->read_counter=0;
     this->page_faults=0;
-    this->bucketsz=0;
-    this->table[bucketsz] = new bucket(bucketsz);
+    this->bucketsNo=bucketsNo_; //how many buckets we have
+    cout<< this->bucketsNo;
+    this->table = new bucket*[bucketsNo_];
     for (int i = 0; i < bucketsNo; i++) {
         this->table[i]=new bucket(bucketsz);
     }

@@ -20,6 +20,11 @@ public:
     bool empty;
     int bucketsz;
     bucket(int size);
+    bucket(){
+        this->empty=true;
+        this->full=false;
+        page= new listPg;
+    }
     listPg *page;
     int find_replace(Page *item);
     void replace_lru(Page *pg);
@@ -32,12 +37,11 @@ public:
     int page_faults;
     int write_counter;
     int read_counter;
-    int bucketsz;
+    int bucketsNo;
     hash_table(int bucketsNo,int bucketsz);
     int find_replace(int hash_num,Page *item);
     void replace_lru(int hash_num,Page *pg);
+    void print();
 };
-
-
 
 #endif

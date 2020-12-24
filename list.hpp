@@ -16,9 +16,9 @@ using namespace std;
 
 class Page{
 public:
-    Page(int _address, string _role, clock_t _time);
+    Page(string _address, string _role, clock_t _time);
     void print();
-    int address;
+    string address;
     string role;
     clock_t t;
 };
