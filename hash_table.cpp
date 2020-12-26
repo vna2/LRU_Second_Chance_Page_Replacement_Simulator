@@ -40,7 +40,6 @@ hash_table::hash_table(int bucketsNo_){
     this->read_counter=0;
     this->page_faults=0;
     this->bucketsNo=bucketsNo_; //how many buckets we have
-    cout<< this->bucketsNo;
     this->table = new bucket*[bucketsNo_];
     for (int i = 0; i < bucketsNo; i++) {
         this->table[i]=new bucket;

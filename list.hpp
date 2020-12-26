@@ -15,10 +15,10 @@ using namespace std;
 
 class Page{
 public:
-    Page(string _address, string _role, clock_t _time);
+    Page(char* _address, char* _role, clock_t _time);
     void print();
-    string address;
-    string role;
+    char address[10];
+    char role[3];
     clock_t t;
     bool Second_chance;
 
@@ -42,15 +42,11 @@ class listPg{
     void push_back(Page *value);
     void print();
     void delete_first();
-    void delete_last();
+    void delete_item(Page *value);
     node * return_first_item();
     int find_replace(Page *pg);
     int find(Page *pg);
     void replace_lru(Page *pg_old,Page *pg_new);
-    string return_address(){
-        return head->r->address;
-    }
-    int test();
 
 };
 #endif

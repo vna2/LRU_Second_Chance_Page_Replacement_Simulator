@@ -12,7 +12,7 @@
 
 using namespace std;
 
-#define DEBUG 3
+#define DEBUG 1
 
 class bucket{
 public:

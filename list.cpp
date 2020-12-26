@@ -2,9 +2,9 @@
 
 using namespace std;
 
-Page::Page(string _address,string _role,clock_t _time){
-    this->address=_address;
-    this->role=_role;
+Page::Page(char* _address,char* _role,clock_t _time){
+    strcpy(this->address,_address);
+    strcpy(this->role,_role);
     this->t=_time;
 }
 
@@ -17,9 +17,9 @@ void Page::print()
 int listPg::find_replace(Page *pg){
     node *temp = head;
     for (int i = 0; i < length; i++) {
-        if(temp->r->address==pg->address){
+        if(strcmp(temp->r->address,pg->address)==0){
             //replace
-            temp->r->role=pg->role;
+            strcpy(temp->r->role,pg->role);
             temp->r->t=pg->t;
             return 1;
         }
@@ -41,15 +41,22 @@ int listPg::find(Page *pg){
 
 void listPg::replace_lru(Page *pg_old,Page *pg_new){
     node *temp = head;
+    #if DEBUG>=3
+        cout<< "new page address: " << pg_new->address<<endl;
+    #endif
     for (int i = 0; i < length; i++) {
-        if(temp->r->address == pg_old->address){
+        if(strcmp(temp->r->address ,pg_old->address)==0){
             temp->r=pg_new;
+            #if DEBUG>=3
+                cout<<"replace_lru \n";
+            #endif
             return;
         }
         temp=temp->next;
     }
-
-    cout<< "algorithm has problem\n";
+    #if DEBUG>=3
+        cout<< "algorithm has problem\n";
+    #endif
 }
 
 void listPg::push_back(Page *value){
@@ -83,12 +90,37 @@ listPg::~listPg(){
 void listPg::print(){
     node *temp;
     temp=head;
+    cout<< "~~~~~~~~~~~~Print List~~~~~~~~~~~~~\n";
     while(temp!=NULL){
       temp->r->print();
       temp=temp->next;
     }
 }
 
+void listPg::delete_item(Page *value){
+    node *temp=new node;
+    temp=head;
+    if(strcmp(temp->r->address,value->address)==0){
+        delete_first();
+    }
+    while(temp!=NULL && temp->next!=NULL){
+        if(strcmp(temp->next->r->address ,value->address)==0){
+            temp->next=temp->next->next;
+            delete temp->next;
+            return;
+        }
+        temp=temp->next;
+    }
+
+    node *temp_last=new node;
+    temp_last=tail;
+    if(strcmp(temp->r->address,value->address)==0){
+        delete temp;
+        length--;
+    }
+
+
+}
 
 void listPg::delete_first(){
     node *temp=new node;
@@ -103,6 +135,6 @@ node::node(){
 }
 
 node::~node(){
-  if(next!=NULL)
-    delete next;
+  // if(next!=NULL)
+  //   delete next;
 }
