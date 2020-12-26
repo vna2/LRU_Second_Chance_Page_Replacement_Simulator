@@ -14,11 +14,12 @@ void Page::print()
     cout<<"Role: "<<role<<endl;
 }
 
-int listPg::find_replace(Page *pg){
+int listPg::find_replace(Page *pg,listPg *oldest_page){
     node *temp = head;
     for (int i = 0; i < length; i++) {
         if(strcmp(temp->r->address,pg->address)==0){
             //replace
+            oldest_page->delete_item(pg);
             strcpy(temp->r->role,pg->role);
             temp->r->t=pg->t;
             return 1;
@@ -39,11 +40,12 @@ int listPg::find(Page *pg){
     return 0;
 }
 
-void listPg::replace_lru(Page *pg_old,Page *pg_new){
+void listPg::replace_lru(Page *pg_old,Page *pg_new,listPg *oldest_page){
     node *temp = head;
     #if DEBUG>=3
         cout<< "new page address: " << pg_new->address<<endl;
     #endif
+    oldest_page->delete_item(pg_old);
     for (int i = 0; i < length; i++) {
         if(strcmp(temp->r->address ,pg_old->address)==0){
             temp->r=pg_new;
@@ -102,8 +104,16 @@ void listPg::delete_item(Page *value){
     temp=head;
     if(strcmp(temp->r->address,value->address)==0){
         delete_first();
+        return;
     }
-    while(temp!=NULL && temp->next!=NULL){
+    node *temp_last=new node;
+    temp_last=tail;
+    if(strcmp(temp_last->r->address,value->address)==0){
+        delete temp_last;
+        length--;
+        return;
+    }
+    while(temp!=NULL || temp->next!=NULL){
         if(strcmp(temp->next->r->address ,value->address)==0){
             temp->next=temp->next->next;
             delete temp->next;
@@ -112,12 +122,6 @@ void listPg::delete_item(Page *value){
         temp=temp->next;
     }
 
-    node *temp_last=new node;
-    temp_last=tail;
-    if(strcmp(temp->r->address,value->address)==0){
-        delete temp;
-        length--;
-    }
 
 
 }
@@ -125,9 +129,14 @@ void listPg::delete_item(Page *value){
 void listPg::delete_first(){
     node *temp=new node;
     temp=head;
-    head=head->next;
-    delete temp;
-    length--;
+    if(temp!=NULL){
+        head=head->next;
+        delete temp;
+        length--;
+    }
+    else{
+        delete temp;
+    }
 }
 
 node::node(){

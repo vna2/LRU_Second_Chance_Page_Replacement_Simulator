@@ -14,12 +14,13 @@ void P2(int algorithm,int q,int bucketsNo,int frames);
 int returnHash(char* s,int MAX_LEN);
 
 void lru(int q,int bucketsno,int frames,string file_);
+void Second_chance(int q,int bucketsNo,int frames,string file_);
 
 int main(int argc, char const *argv[]) {
-    int q=100000;
-    int frames=100; //
-    P1(1,q,1000,frames);
-    P2(1,q,1000,frames);
+    int q=100000000;
+    int frames=5; //
+    P1(1,q,5,frames);
+    P2(1,q,5,frames);
 
     // int pid = fork();
     // switch(pid){
@@ -85,19 +86,19 @@ void lru(int q,int bucketsNo,int frames,string file_){
         hash_num=returnHash(address,bucketsNo);
 
         if(frame_counter<frames){
-            if(table.table[hash_num]->find_replace(page)==0){
+            if(table.table[hash_num]->find_replace(page,oldest_page)==0){
                 table.table[hash_num]->page->push_back(page);
                 table.page_faults++;
                 frame_counter++;
             }
         }else{
-            if(table.table[hash_num]->find_replace(page)==0){//If find the same page we will replace
+            if(table.table[hash_num]->find_replace(page,oldest_page)==0){//If find the same page we will replace
                 //Else we replace the oldest page
                 #if DEBUG>=3
                     cout<< "old page address: " << oldest_page->head->r->address<<endl;
                 #endif
                 int hash= returnHash(oldest_page->head->r->address,bucketsNo);
-                table.table[hash]->replace_lru(oldest_page->head->r,page);
+                table.table[hash]->replace_lru(oldest_page->head->r,page,oldest_page);
                 table.page_faults++;
                 oldest_page->delete_first();
 
@@ -106,7 +107,7 @@ void lru(int q,int bucketsNo,int frames,string file_){
 
     }
     #if DEBUG>=1
-        table.print();
+        //table.print();
     #endif
 
     cout << "~~~~~~~~~~~Stats~~~~~~~~~~~~~~\n";
@@ -114,6 +115,10 @@ void lru(int q,int bucketsNo,int frames,string file_){
     cout << "Page read: "<< table.read_counter<<endl;
     cout << "Page faults: "<< table.page_faults<<endl;
     cout << "frames: "   << frame_counter<<endl;
+
+}
+
+void Second_chance(int q,int bucketsNo,int frames,string file_){
 
 }
 
