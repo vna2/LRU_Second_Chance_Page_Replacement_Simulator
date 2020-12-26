@@ -28,20 +28,28 @@ int listPg::find_replace(Page *pg){
     return 0;
 }
 
-void listPg::replace_lru(Page *pg){
+int listPg::find(Page *pg){
     node *temp = head;
-    clock_t min=temp->r->t;
     for (int i = 0; i < length; i++) {
-        if(temp->r->t<min){
-            temp->r->role=pg->role;
-            temp->r->t=pg->t;
-            break;
+        if(temp->r->address==pg->address){
+            return 1;
+        }
+        temp=temp->next;
+    }
+    return 0;
+}
+
+void listPg::replace_lru(Page *pg_old,Page *pg_new){
+    node *temp = head;
+    for (int i = 0; i < length; i++) {
+        if(temp->r->address == pg_old->address){
+            temp->r=pg_new;
+            return;
         }
         temp=temp->next;
     }
 
-    head->r->role=pg->role;
-    head->r->t=pg->t;
+    cout<< "algorithm has problem\n";
 }
 
 void listPg::push_back(Page *value){

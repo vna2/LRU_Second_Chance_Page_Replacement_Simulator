@@ -16,18 +16,12 @@ using namespace std;
 
 class bucket{
 public:
-    bool full;
     bool empty;
     int bucketsz;
-    bucket(int size);
-    bucket(){
-        this->empty=true;
-        this->full=false;
-        page= new listPg;
-    }
+    bucket();
     listPg *page;
     int find_replace(Page *item);
-    void replace_lru(Page *pg);
+    void replace_lru(Page *pg_old,Page *pg_new);
     void print();
 };
 
@@ -38,9 +32,8 @@ public:
     int write_counter;
     int read_counter;
     int bucketsNo;
-    hash_table(int bucketsNo,int bucketsz);
-    int find_replace(int hash_num,Page *item);
-    void replace_lru(int hash_num,Page *pg);
+    hash_table(int bucketsNo);
+
     void print();
 };
 

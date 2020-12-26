@@ -10,7 +10,6 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
-#include "list.hpp"
 
 using namespace std;
 
@@ -22,6 +21,7 @@ public:
     string role;
     clock_t t;
     bool Second_chance;
+
 };
 
 struct node{
@@ -45,7 +45,11 @@ class listPg{
     void delete_last();
     node * return_first_item();
     int find_replace(Page *pg);
-    void replace_lru(Page *pg);
+    int find(Page *pg);
+    void replace_lru(Page *pg_old,Page *pg_new);
+    string return_address(){
+        return head->r->address;
+    }
     int test();
 
 };

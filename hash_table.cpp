@@ -12,10 +12,8 @@
 using namespace std;
 
 
-bucket::bucket(int sz){
+bucket::bucket(){
     this->empty=true;
-    this->full=false;
-    this->bucketsz=sz;
     page= new listPg;
 
 }
@@ -37,7 +35,7 @@ void bucket::print(){
     page->print();
 }
 class bucket;
-hash_table::hash_table(int bucketsNo_,int bucketsz){
+hash_table::hash_table(int bucketsNo_){
     this->write_counter=0;
     this->read_counter=0;
     this->page_faults=0;
@@ -45,19 +43,12 @@ hash_table::hash_table(int bucketsNo_,int bucketsz){
     cout<< this->bucketsNo;
     this->table = new bucket*[bucketsNo_];
     for (int i = 0; i < bucketsNo; i++) {
-        this->table[i]=new bucket(bucketsz);
+        this->table[i]=new bucket;
     }
 
 }
 
-int hash_table::find_replace(int hash_num,Page *pg){
-    return table[hash_num]->find_replace(pg);
-}
 
-void bucket::replace_lru(Page *pg){
-    page->replace_lru(pg);
-}
-
-void hash_table::replace_lru(int hash_num,Page *pg){
-    table[hash_num]->replace_lru(pg);
+void bucket::replace_lru(Page *pg_old,Page *pg_new){
+    page->replace_lru(pg_old,pg_new);
 }
