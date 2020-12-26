@@ -70,7 +70,6 @@ void lru(int q,int bucketsNo){
         else
             table.read_counter++;
         hash_num=returnHash(address_num,bucketsNo);
-        //hash_num=hash_index(address_num.c_str(),address_num.length(),bucketsno);
 
 
         if(table.table[hash_num]->full==true){
@@ -94,7 +93,6 @@ void lru(int q,int bucketsNo){
     cout << "Page faults: "<< table.page_faults<<endl;
 
     //table.print();
-
 
 }
 

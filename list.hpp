@@ -21,6 +21,7 @@ public:
     string address;
     string role;
     clock_t t;
+    bool Second_chance;
 };
 
 struct node{
