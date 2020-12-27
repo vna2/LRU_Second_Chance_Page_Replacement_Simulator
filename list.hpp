@@ -27,7 +27,6 @@ public:
 struct node{
     Page *r;
     node *next;
-    node *prev;
 
     node();
     ~node();

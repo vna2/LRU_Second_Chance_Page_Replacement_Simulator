@@ -111,10 +111,9 @@ void listPg::delete_item(Page *value){
         return;
     }
     while( temp!=NULL){
-        prev=temp;
         if(strcmp(temp->r->address ,value->address)==0){
             if(temp->next!=NULL){
-                prev=temp->next;
+                prev->next=temp->next;
                 cout << "endiameso stixio stixio\n";
                 length--;
                 delete temp;
@@ -129,6 +128,7 @@ void listPg::delete_item(Page *value){
                 return;
             }
         }
+        prev=temp;
         temp=temp->next;
     }
     cout << "problem on list \n";
@@ -149,7 +149,6 @@ void listPg::delete_first(){
 
 node::node(){
   next=NULL;
-  prev=NULL;
 }
 
 node::~node(){
