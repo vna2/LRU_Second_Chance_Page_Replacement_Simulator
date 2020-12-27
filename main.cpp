@@ -17,9 +17,9 @@ void lru(int q,int bucketsno,int frames,string file_);
 void Second_chance(int q,int bucketsNo,int frames,string file_);
 
 int main(int argc, char const *argv[]) {
-    int q=50;
-    int frames=20; //
-    P1(1,q,10,frames);
+    int q=20;
+    int frames=10; //
+    P1(1,q,5,frames);
     //P2(1,q,10,frames);
 
     // int pid = fork();
