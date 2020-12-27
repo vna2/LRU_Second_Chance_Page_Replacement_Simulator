@@ -18,6 +18,7 @@ public:
     Page(char* _address, char* _role, clock_t _time);
     void print();
     char address[6];
+    int address_num;
     char role[2];
     clock_t t;
     bool Second_chance;
