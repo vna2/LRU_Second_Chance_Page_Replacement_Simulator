@@ -17,8 +17,8 @@ class Page{
 public:
     Page(char* _address, char* _role, clock_t _time);
     void print();
-    char address[10];
-    char role[3];
+    char address[6];
+    char role[2];
     clock_t t;
     bool Second_chance;
 
@@ -27,6 +27,7 @@ public:
 struct node{
     Page *r;
     node *next;
+    node *prev;
 
     node();
     ~node();

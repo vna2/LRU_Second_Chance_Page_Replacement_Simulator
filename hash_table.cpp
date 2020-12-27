@@ -34,7 +34,7 @@ void hash_table::print(){
 void bucket::print(){
     page->print();
 }
-class bucket;
+
 hash_table::hash_table(int bucketsNo_){
     this->write_counter=0;
     this->read_counter=0;
