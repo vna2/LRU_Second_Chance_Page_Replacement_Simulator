@@ -13,13 +13,13 @@ using namespace std;
 
 
 bucket::bucket(){
-    this->empty=true;
     page= new listPg;
 
 }
 
-int bucket::find_replace(Page *item,listPg *oldest_page){
-    return page->find_replace(item,oldest_page);
+int bucket::find_replace(Page *item){
+
+    return page->find_replace(item);
 }
 
 void hash_table::print(){
@@ -48,6 +48,6 @@ hash_table::hash_table(int bucketsNo_){
 }
 
 
-void bucket::replace_lru(Page *pg_old,Page *pg_new,listPg *oldest_page){
-    page->replace_lru(pg_old,pg_new,oldest_page);
+void bucket::replace_lru(Page *pg_old,Page *pg_new){
+    page->replace_lru(pg_old,pg_new);
 }

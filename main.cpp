@@ -12,14 +12,16 @@ using namespace std;
 void P1(int algorithm,int q,int bucketsNo,int frames);
 void P2(int algorithm,int q,int bucketsNo,int frames);
 int returnHash(char* s,int MAX_LEN);
+int hash_index(int s,int MAX_LEN);
+unsigned int hex2int(char *hex);
 
 void lru(int q,int bucketsno,int frames,string file_);
 void Second_chance(int q,int bucketsNo,int frames,string file_);
-
+void cut_hex(char* mem);
 int main(int argc, char const *argv[]) {
-    int q=20;
+    int q=50;
     int frames=10; //
-    P1(1,q,5,frames);
+    P1(1,q,4,frames);
     //P2(1,q,10,frames);
 
     // int pid = fork();
@@ -52,65 +54,66 @@ void P2(int algorithm,int q,int bucketsNo,int frames){
 void lru(int q,int bucketsNo,int frames,string file_){
     hash_table *table= new hash_table(bucketsNo);
     listPg *oldest_page=new listPg;
-    string address_num ;
-    ifstream file(file_);
+    unsigned int address_num=0 ;
+    ifstream file;
+    file.open(file_);
     int hash_num;
-    stringstream hex_num;
-    string line, addrStr, rl;
-    clock_t timer;
     int frame_counter=0;
     for (int i = 0; i < q; i++) {
 
         char address[10];
-        address[6]='\0';
+        address[5]='\0';
         char role[2];
         role[1]='\0';
 
-        getline(file, line);
-        address_num.assign(line.begin(),line.begin()+5);
-        rl.assign(line.end()-1,line.end());
-        timer=clock();
 
-        strcpy(address,address_num.c_str());
-        strcpy(role,rl.c_str());
+        file >> address;
+        file >> role;
+        cut_hex(address);
 
-        Page* page= new Page(address,role,timer);
+        address_num= hex2int(address);
+
+        Page* page= new Page(address,address_num,role,i);
+
+
+        if(strcmp(role,"W")==0)
+            table->write_counter++;
+        else
+            table->read_counter++;
+        hash_num =hash_index(page->address_num,bucketsNo);
+        //hash_num=returnHash(address,bucketsNo);
 
         #if DEBUG>=3
             oldest_page->print();
         #endif
-        if(rl=="W")
-            table->write_counter++;
-        else
-            table->read_counter++;
-        hash_num=returnHash(address,bucketsNo);
-        if(table->table[hash_num]->page->find(page)==1){
-            oldest_page->delete_item(page);
-        }
-        oldest_page->push_back(page);
         if(frame_counter<frames){
-            if(table->table[hash_num]->find_replace(page,oldest_page)==0){
+            if(table->table[hash_num]->find_replace(page)==0){
                 table->table[hash_num]->page->push_back(page);
                 table->page_faults++;
                 frame_counter++;
             }
         }else{
-            if(table->table[hash_num]->find_replace(page,oldest_page)==0){//If find the same page we will replace
+            if(table->table[hash_num]->find_replace(page)==0){//If find the same page we will replace
                 //Else we replace the oldest page
                 #if DEBUG>=3
                     cout<< "old page address: " << oldest_page->head->r->address<<endl;
                 #endif
-                int hash= returnHash(oldest_page->head->r->address,bucketsNo);
-                table->table[hash]->replace_lru(oldest_page->head->r,page,oldest_page);
+                replace_lru(oldest_page->head->r,page);
                 table->page_faults++;
                 oldest_page->delete_first();
 
+
             }
         }
+        #if DEBUG>=1
+        cout << "frames: "<<frame_counter;
         oldest_page->print();
+        //table->print();
+
+        #endif
     }
     #if DEBUG>=1
-        //table->print();
+        table->print();
     #endif
 
     cout << "~~~~~~~~~~~Stats~~~~~~~~~~~~~~\n";
@@ -139,13 +142,37 @@ int returnHash(char *s,int MAX_LEN)
 {
     // A simple hashing, no collision handled
     int sum=0,index=0;
-    if(strlen(s)>6){
-        std::cout << "Error on char* " << '\n';
-    }
+
     for(unsigned long int i=0; i < strlen(s); i++)
     {
         sum += s[i];
     }
     index = sum % MAX_LEN;
     return index;
+}
+
+int hash_index(int s,int MAX_LEN){
+    return s % MAX_LEN;
+}
+
+unsigned int hex2int(char *hex) {
+    uint32_t val = 0;
+    while (*hex) {
+        // get current character then increment
+        uint8_t byte = *hex++;
+        // transform hex character to the 4bit equivalent number, using the ascii table indexes
+        if (byte >= '0' && byte <= '9') byte = byte - '0';
+        else if (byte >= 'a' && byte <='f') byte = byte - 'a' + 10;
+        else if (byte >= 'A' && byte <='F') byte = byte - 'A' + 10;
+        // shift 4 to make space for new digit, and add the 4 bits of the new digit
+        val = (val << 4) | (byte & 0xF);
+    }
+    return val;
+}
+
+void cut_hex(char* mem){
+  char temp[100];
+
+  memcpy( temp,mem , 5 );
+  mem[5]='\0';
 }

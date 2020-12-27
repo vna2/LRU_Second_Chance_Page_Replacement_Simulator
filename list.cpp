@@ -2,26 +2,28 @@
 
 using namespace std;
 
-Page::Page(char* _address,char* _role,clock_t _time){
+Page::Page(char* _address,unsigned int _address_num,char* _role,clock_t _time){
     strcpy(this->address,_address);
     strcpy(this->role,_role);
+    address_num=_address_num;
     this->t=_time;
 }
 
 void Page::print()
 {
     cout<<"Address: "<<address<<endl;
-    cout<<"Role: "<<role<<endl;
+    cout<<"Address_num: "<<address_num<<endl;
+    cout<<"Role: "<<role<<endl<<endl;
 }
 
-int listPg::find_replace(Page *pg,listPg *oldest_page){
+int listPg::find_replace(Page *pg){
     node *temp = head;
-    for (int i = 0; i < length; i++) {
-        if(strcmp(temp->r->address,pg->address)==0){
+    while(temp!=NULL){
+        if(temp->r->address_num==pg->address_num){
             //replace
-            //oldest_page->delete_item(temp->r);
+            temp->r->address_num=pg->address_num;
+            strcpy(temp->r->address,pg->address);
             strcpy(temp->r->role,pg->role);
-            temp->r->t=pg->t;
             return 1;
         }
         temp=temp->next;
@@ -31,8 +33,8 @@ int listPg::find_replace(Page *pg,listPg *oldest_page){
 
 int listPg::find(Page *pg){
     node *temp = head;
-    for (int i = 0; i < length; i++) {
-        if(strcmp(temp->r->address,pg->address)==0){
+    while(temp!=NULL){
+        if(temp->r->address_num==pg->address_num){
             return 1;
         }
         temp=temp->next;
@@ -40,15 +42,18 @@ int listPg::find(Page *pg){
     return 0;
 }
 
-void listPg::replace_lru(Page *pg_old,Page *pg_new,listPg *oldest_page){
-    node *temp = head;
+void listPg::replace_lru(Page *pg_old,Page *pg_new){
+    node *temp =head;
+
     #if DEBUG>=3
         cout<< "new page address: " << pg_new->address<<endl;
     #endif
 //    oldest_page->delete_item(pg_old);
-    for (int i = 0; i < length; i++) {
-        if(strcmp(temp->r->address ,pg_old->address)==0){
-            temp->r=pg_new;
+    while(temp!=NULL){
+        if(temp->r->address_num==pg_old->address_num){
+            temp->r->address_num=pg_new->address_num;
+            strcpy(temp->r->address,pg_new->address);
+            strcpy(temp->r->role,pg_new->role);
             #if DEBUG>=3
                 cout<<"replace_lru \n";
             #endif
@@ -56,9 +61,8 @@ void listPg::replace_lru(Page *pg_old,Page *pg_new,listPg *oldest_page){
         }
         temp=temp->next;
     }
-    #if DEBUG>=3
         cout<< "algorithm has problem\n";
-    #endif
+
 }
 
 void listPg::push_back(Page *value){
@@ -103,15 +107,15 @@ void listPg::delete_item(Page *value){
     node *temp=new node;
     node *prev=new node;
     temp=head;
-    prev=head;
-    if(strcmp(temp->r->address,value->address)==0){
+    //prev=head;
+    if(temp->r->address_num==value->address_num){
         cout << "arxi listas\n";
         delete_first();
         length--;
         return;
     }
     while( temp!=NULL){
-        if(strcmp(temp->r->address ,value->address)==0){
+        if(temp->r->address_num==value->address_num){
             if(temp->next!=NULL){
                 prev->next=temp->next;
                 cout << "endiameso stixio stixio\n";
@@ -122,7 +126,7 @@ void listPg::delete_item(Page *value){
             else{
                 cout << "telefteo stixio\n";
                 tail=prev;
-                tail->next=NULL;
+                //tail->next=NULL;
                 length--;
                 delete temp;
                 return;
@@ -144,11 +148,13 @@ void listPg::delete_first(){
     }
     else{
         delete temp;
+
     }
 }
 
 node::node(){
-  next=NULL;
+    r=new Page;
+    next=NULL;
 }
 
 node::~node(){
