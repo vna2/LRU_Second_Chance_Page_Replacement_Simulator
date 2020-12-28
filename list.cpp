@@ -13,13 +13,15 @@ void Page::print()
 {
     cout<<"Address: "<<address<<endl;
     cout<<"Address_num: "<<address_num<<endl;
-    cout<<"Role: "<<role<<endl<<endl;
+    cout<<"Role: "<<role<<endl;
+    cout<< "Second chance: " <<Second_chance<<endl<<endl;
 }
 
-int listPg::find_replace(Page *pg,listPg *oldest_page){
+int listPg::find_replace(Page *pg,listPg *oldest_page,int alg){
     node *temp = new node;
     temp =head;
-
+if(alg==1){
+    //LRU
     while(temp!=NULL){
         if(temp->r->address_num==pg->address_num){
             //replace
@@ -31,6 +33,28 @@ int listPg::find_replace(Page *pg,listPg *oldest_page){
         temp=temp->next;
     }
     return 0;
+}else{
+    //SECOND CHANCE
+    while(temp!=NULL){
+        if(temp->r->address_num==pg->address_num){
+            if(temp->r->Second_chance==false){
+                temp->r->Second_chance=true;
+                return 1;
+            }else{
+                //replace
+                temp->r=pg;
+                temp->r->Second_chance=false;
+                oldest_page->delete_item(pg);
+                oldest_page->push_back(pg);
+                temp->r=pg;
+                return 1;
+            }
+        }
+        temp=temp->next;
+    }
+    return 0;
+
+}
 }
 
 int listPg::find(Page *pg){
@@ -44,31 +68,7 @@ int listPg::find(Page *pg){
     return 0;
 }
 
-void listPg::replace_lru(Page *pg_old,Page *pg_new,listPg *oldest_page){
-    node *temp = new node;
-    temp =head;
-    #if DEBUG>=0
-        cout<< "new page address: " << pg_old->address<<endl;
-        //cout<< "new page address: " << oldest_page->head->r->address<<endl;
-        cout << "new page address: "<< pg_new->address<<endl;
 
-    #endif
-//    oldest_page->delete_item(pg_old);
-    while(temp!=NULL){
-        if(temp->r->address_num==pg_old->address_num){
-            oldest_page->delete_item(pg_old);
-            oldest_page->push_back(pg_new);
-            temp->r= pg_new;
-            #if DEBUG>=3
-                cout<<"replace_lru \n";
-            #endif
-            return;
-        }
-        temp=temp->next;
-    }
-        cout<< "aaaaaaaaalgorithm has problem\n";
-
-}
 
 void listPg::push_back(Page *value){
     node *temp;
@@ -123,7 +123,6 @@ void listPg::delete_item(Page *value){
     temp=head;
     prev=temp;
     if(temp->r->address_num==value->address_num){
-        cout << "arxi listas\n";
         delete_first();
         length--;
         return;
@@ -132,13 +131,11 @@ void listPg::delete_item(Page *value){
         if(temp->r->address_num==value->address_num){
             if(temp->next!=NULL){
                 prev->next=temp->next;
-                cout << "endiameso stixio stixio\n";
                 length--;
                 delete temp;
                 return;
             }
             else{
-                cout << "telefteo stixio\n";
                 tail=prev;
                 tail->next=NULL;
                 length--;

@@ -17,9 +17,9 @@ bucket::bucket(){
 
 }
 
-int bucket::find_replace(Page *item,listPg *oldest_page){
+int bucket::find_replace(Page *item,listPg *oldest_page,int alg){
 
-    return page->find_replace(item,oldest_page);
+    return page->find_replace(item,oldest_page,alg);
 }
 
 void hash_table::print(){
@@ -45,9 +45,4 @@ hash_table::hash_table(int bucketsNo_){
         this->table[i]=new bucket;
     }
 
-}
-
-
-void bucket::replace_lru(Page *pg_old,Page *pg_new,listPg *oldest_page){
-    page->replace_lru(pg_old,pg_new,oldest_page);
 }
