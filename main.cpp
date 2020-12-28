@@ -94,25 +94,25 @@ void lru(int q,int bucketsNo,int frames,string file_){
             }
         }else{
             //int hash= hash_index(oldest_page->head->r->address_num,bucketsNo);
-            
+
             if(table->table[hash_num]->find_replace(page,oldest_page)==0){//If find the same page we will replace
                 //Else we replace the oldest page
-
                 #if DEBUG>=1
                     cout<< "OLD PAGE ADDRESS: " << oldest_page->head->r->address<<endl;
                 #endif
-
+                //LRU
                 int hash= hash_index(oldest_page->head->r->address_num,bucketsNo);
+                table->table[hash]->page->delete_item(oldest_page->head->r);
+                table->table[hash_num]->page->push_back(page);
+                oldest_page->delete_first();
+                oldest_page->push_back(page);
 
-                cout << "hash num: " << hash_num<<"hash: " << hash<<endl;
-                table->table[hash]->replace_lru(oldest_page->head->r,page,oldest_page);
-                table->page_faults++;
 
             }
         }
         #if DEBUG>=1
         cout << "frames: "<<frame_counter<<endl;
-        oldest_page->print();
+        //oldest_page->print();
         table->print();
 
         #endif

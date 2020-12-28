@@ -25,7 +25,6 @@ int listPg::find_replace(Page *pg,listPg *oldest_page){
             //replace
             oldest_page->delete_item(pg);
             oldest_page->push_back(pg);
-            cout<< "Find replace found: "<<pg->address_num<<endl;
             temp->r=pg;
             return 1;
         }
