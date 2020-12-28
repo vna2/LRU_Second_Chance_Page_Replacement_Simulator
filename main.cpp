@@ -74,6 +74,7 @@ void lru(int q,int bucketsNo,int frames,string file_){
         address_num= hex2int(address);
 
         Page* page= new Page(address,address_num,role,i);
+        //Page* pageL= new Page(address,address_num,role,i);
 
 
         if(strcmp(role,"W")==0)
@@ -81,39 +82,38 @@ void lru(int q,int bucketsNo,int frames,string file_){
         else
             table->read_counter++;
         hash_num =hash_index(page->address_num,bucketsNo);
-        //hash_num=returnHash(address,bucketsNo);
+        //hash_num=returnHash(address,bucketsNo
 
-        #if DEBUG>=3
-            oldest_page->print();
-        #endif
         if(frame_counter<frames){
-            if(table->table[hash_num]->find_replace(page)==0){
+            if(table->table[hash_num]->find_replace(page,oldest_page)==0){
                 table->table[hash_num]->page->push_back(page);
+                oldest_page->push_back(page);
                 table->page_faults++;
+
                 frame_counter++;
             }
         }else{
-            if(table->table[hash_num]->find_replace(page)==0){//If find the same page we will replace
+            if(table->table[hash_num]->find_replace(page,oldest_page)==0){//If find the same page we will replace
                 //Else we replace the oldest page
+
                 #if DEBUG>=3
                     cout<< "old page address: " << oldest_page->head->r->address<<endl;
                 #endif
-                replace_lru(oldest_page->head->r,page);
+                //int hash= hash_index(oldest_page->head->r->address_num,bucketsNo);
+                table->table[hash]->replace_lru(oldest_page->head->r,page,oldest_page);
                 table->page_faults++;
-                oldest_page->delete_first();
-
 
             }
         }
         #if DEBUG>=1
-        cout << "frames: "<<frame_counter;
+        cout << "frames: "<<frame_counter<<endl;
         oldest_page->print();
-        //table->print();
+        table->print();
 
         #endif
     }
     #if DEBUG>=1
-        table->print();
+        //table->print();
     #endif
 
     cout << "~~~~~~~~~~~Stats~~~~~~~~~~~~~~\n";

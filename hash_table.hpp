@@ -19,8 +19,8 @@ public:
     int bucketsz;
     bucket();
     listPg *page;
-    int find_replace(Page *item);
-    void replace_lru(Page *pg_old,Page *pg_new);
+    int find_replace(Page *item,listPg *oldest_page);
+    void replace_lru(Page *pg_old,Page *pg_new,listPg *oldest_page);
     void print();
 };
 

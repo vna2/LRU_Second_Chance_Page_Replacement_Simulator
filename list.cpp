@@ -16,11 +16,13 @@ void Page::print()
     cout<<"Role: "<<role<<endl<<endl;
 }
 
-int listPg::find_replace(Page *pg){
+int listPg::find_replace(Page *pg,listPg *oldest_page){
     node *temp = head;
     while(temp!=NULL){
         if(temp->r->address_num==pg->address_num){
             //replace
+            oldest_page->delete_item(pg);
+            oldest_page->push_back(pg);
             temp->r->address_num=pg->address_num;
             strcpy(temp->r->address,pg->address);
             strcpy(temp->r->role,pg->role);
@@ -42,7 +44,7 @@ int listPg::find(Page *pg){
     return 0;
 }
 
-void listPg::replace_lru(Page *pg_old,Page *pg_new){
+void listPg::replace_lru(Page *pg_old,Page *pg_new,listPg *oldest_page){
     node *temp =head;
 
     #if DEBUG>=3
@@ -51,9 +53,9 @@ void listPg::replace_lru(Page *pg_old,Page *pg_new){
 //    oldest_page->delete_item(pg_old);
     while(temp!=NULL){
         if(temp->r->address_num==pg_old->address_num){
-            temp->r->address_num=pg_new->address_num;
-            strcpy(temp->r->address,pg_new->address);
-            strcpy(temp->r->role,pg_new->role);
+            oldest_page->delete_item(pg_old);
+            oldest_page->push_back(pg_new);
+            temp->r= pg_new;
             #if DEBUG>=3
                 cout<<"replace_lru \n";
             #endif
@@ -66,6 +68,8 @@ void listPg::replace_lru(Page *pg_old,Page *pg_new){
 }
 
 void listPg::push_back(Page *value){
+    node *temp;
+    temp=head;
     if(head==NULL){
         head=new node;
         head->r=value;
@@ -74,10 +78,17 @@ void listPg::push_back(Page *value){
 
     }
     else{
-        tail->next=new node;
-        tail->next->r=value;
-        length++;
-        tail=tail->next;
+        // tail->next=new node;
+        // tail->next->r=value;
+        // length++;
+        // tail=tail->next;
+        while(temp->next!=NULL){
+            temp=temp->next;
+        }
+        temp->next=new node;
+        temp=temp->next;
+        temp->r=value;
+        temp->next=NULL;
 
     }
 }
@@ -104,10 +115,10 @@ void listPg::print(){
 }
 
 void listPg::delete_item(Page *value){
-    node *temp=new node;
-    node *prev=new node;
+    node *temp;
+    node *prev;
     temp=head;
-    //prev=head;
+    prev=temp;
     if(temp->r->address_num==value->address_num){
         cout << "arxi listas\n";
         delete_first();
@@ -126,7 +137,7 @@ void listPg::delete_item(Page *value){
             else{
                 cout << "telefteo stixio\n";
                 tail=prev;
-                //tail->next=NULL;
+                tail->next=NULL;
                 length--;
                 delete temp;
                 return;
@@ -148,7 +159,6 @@ void listPg::delete_first(){
     }
     else{
         delete temp;
-
     }
 }
 
