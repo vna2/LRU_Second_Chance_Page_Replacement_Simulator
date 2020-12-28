@@ -19,7 +19,7 @@ void lru(int q,int bucketsno,int frames,string file_);
 void Second_chance(int q,int bucketsNo,int frames,string file_);
 void cut_hex(char* mem);
 int main(int argc, char const *argv[]) {
-    int q=50;
+    int q=20;
     int frames=10; //
     P1(1,q,4,frames);
     //P2(1,q,10,frames);
@@ -93,13 +93,18 @@ void lru(int q,int bucketsNo,int frames,string file_){
                 frame_counter++;
             }
         }else{
+            //int hash= hash_index(oldest_page->head->r->address_num,bucketsNo);
+            
             if(table->table[hash_num]->find_replace(page,oldest_page)==0){//If find the same page we will replace
                 //Else we replace the oldest page
 
-                #if DEBUG>=3
-                    cout<< "old page address: " << oldest_page->head->r->address<<endl;
+                #if DEBUG>=1
+                    cout<< "OLD PAGE ADDRESS: " << oldest_page->head->r->address<<endl;
                 #endif
-                //int hash= hash_index(oldest_page->head->r->address_num,bucketsNo);
+
+                int hash= hash_index(oldest_page->head->r->address_num,bucketsNo);
+
+                cout << "hash num: " << hash_num<<"hash: " << hash<<endl;
                 table->table[hash]->replace_lru(oldest_page->head->r,page,oldest_page);
                 table->page_faults++;
 

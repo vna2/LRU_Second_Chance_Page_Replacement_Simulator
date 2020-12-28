@@ -17,15 +17,16 @@ void Page::print()
 }
 
 int listPg::find_replace(Page *pg,listPg *oldest_page){
-    node *temp = head;
+    node *temp = new node;
+    temp =head;
+
     while(temp!=NULL){
         if(temp->r->address_num==pg->address_num){
             //replace
             oldest_page->delete_item(pg);
             oldest_page->push_back(pg);
-            temp->r->address_num=pg->address_num;
-            strcpy(temp->r->address,pg->address);
-            strcpy(temp->r->role,pg->role);
+            cout<< "Find replace found: "<<pg->address_num<<endl;
+            temp->r=pg;
             return 1;
         }
         temp=temp->next;
@@ -45,10 +46,13 @@ int listPg::find(Page *pg){
 }
 
 void listPg::replace_lru(Page *pg_old,Page *pg_new,listPg *oldest_page){
-    node *temp =head;
+    node *temp = new node;
+    temp =head;
+    #if DEBUG>=0
+        cout<< "new page address: " << pg_old->address<<endl;
+        //cout<< "new page address: " << oldest_page->head->r->address<<endl;
+        cout << "new page address: "<< pg_new->address<<endl;
 
-    #if DEBUG>=3
-        cout<< "new page address: " << pg_new->address<<endl;
     #endif
 //    oldest_page->delete_item(pg_old);
     while(temp!=NULL){
@@ -63,7 +67,7 @@ void listPg::replace_lru(Page *pg_old,Page *pg_new,listPg *oldest_page){
         }
         temp=temp->next;
     }
-        cout<< "algorithm has problem\n";
+        cout<< "aaaaaaaaalgorithm has problem\n";
 
 }
 
