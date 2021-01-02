@@ -15,6 +15,17 @@
 #include <errno.h>
 #include <fstream>
 
+#define sh_mem_p1_key_file "SH_MEM_PM1"
+#define sh_mem_p1_size_file sizeof(stats*)
+
+#define sh_mem_p2_key_file "SH_MEM_PM2"
+#define sh_mem_p2_size_file sizeof(stats*)
+
+#define sh_mem_counter_key_file "SH_MEM_COUNTERS"
+#define sh_mem_counter_size_file sizeof(int)
+
+#define p1_shem_key_file "p1_sem"
+#define p2_shem_key_file "p2_sem"
 
 void die(char er[1000]);
 
@@ -170,6 +181,59 @@ void clear_sem(char* sem_file, unsigned int num=0){
     #if DEBUG >= 1
         else printf("!! unlinked semaphore file!!\n");
     #endif
+}
+
+
+void initialized_all_shared_memmory_semaphores(){
+
+    //~~~~~~~~~~~~~~~~Generate_keys~~~~~~~~~~~~~~~~~~~~~~//
+        key_t sh_mem_p1_key =ftok("main",1);
+        key_t sh_mem_p1_size =ftok("main",2);
+        key_t sh_mem_p2_key =ftok("main",3);
+        key_t sh_mem_p2_size =ftok("main",4);
+        key_t sh_mem_counter_key =ftok("main",5);
+        key_t sh_mem_counter_size =ftok("main",6);
+        key_t p1_shem_key=ftok("main",7);
+        key_t p2_shem_key =ftok("main",8);
+
+
+
+    //~~~~~~~~~~~~~~~~Shared_memory~~~~~~~~~~~~~~~~~~~~~~//
+        //Shared_memory for P1
+        generate_memory_segment(sh_mem_p1_key,sh_mem_p1_size,sh_mem_p1_key_file);
+        int P_mem_id=get_memory_id_from_file(sh_mem_p1_key_file,sh_mem_p1_size);
+        char* mem_P = (char*) shmat(P_mem_id, NULL, 0);
+        if(mem_P==(void*)-1)die("shared memory main");
+        #if DEBUG >= 2
+            printf ("!! shared mem P1 attached at main and initialized !!\n");
+        #endif
+
+        //Shared_memory for P2
+        generate_memory_segment(sh_mem_p2_key,sh_mem_p2_size,sh_mem_p2_key_file);
+        int P_ENC_mem_id=get_memory_id_from_file(sh_mem_p2_key_file,sh_mem_p2_size);
+        char* mem_P_ENC = (char*) shmat(P_ENC_mem_id, NULL, 0);
+        if(mem_P_ENC==(void*)-1)die("shared memory main");
+        #if DEBUG >= 2
+            printf ("!! shared mem P2 attached at main and initialized !!\n");
+        #endif
+
+        //Shared_memory for Stats
+        generate_memory_segment(sh_mem_counter_key,sh_mem_counter_size,sh_mem_counter_key_file);
+        int ENC_CHAN_mem_id=get_memory_id_from_file(sh_mem_counter_key_file,sh_mem_counter_size);
+        char* mem_ENC_CHAN = (char*) shmat(ENC_CHAN_mem_id, NULL, 0);
+        if(mem_ENC_CHAN==(void*)-1)die("shared memory main");
+        #if DEBUG >= 2
+            printf ("!! shared mem stats attached at main and initialized !!\n");
+        #endif
+
+
+    //~~~~~~~~~~~~~~~~Semaphore~~~~~~~~~~~~~~~~~~~~~~~~~//
+        int sem_p1=generate_semaphore(p1_shem_key,p1_shem_key_file);
+        initialise_semaphore(sem_p1);
+        int sem_p2=generate_semaphore(p2_shem_key,p2_shem_key_file);
+        initialise_semaphore(sem_p2);
+
+
 }
 
 

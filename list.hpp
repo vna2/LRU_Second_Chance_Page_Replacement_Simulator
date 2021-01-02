@@ -13,6 +13,14 @@
 
 using namespace std;
 
+class stats{
+public:
+    int reads;
+    int writes;
+    int page_faults;
+    int fraems;
+};
+
 class Page{
 public:
     Page(char* _address,unsigned int _address_num, char* _role, clock_t _time);

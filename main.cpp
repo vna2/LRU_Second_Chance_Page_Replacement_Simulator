@@ -6,8 +6,20 @@
 
 using namespace std;
 
-#define sh_mem_p1 sh_mem_p1
-#define sh_mem_p2 sh_mem_p2
+#define sh_mem_p1_key_file "SH_MEM_PM1"
+#define sh_mem_p1_size_file sizeof(stats*)
+
+#define sh_mem_p2_key_file "SH_MEM_PM2"
+#define sh_mem_p2_size_file sizeof(stats*)
+
+#define sh_mem_counter_key_file "SH_MEM_COUNTERS"
+#define sh_mem_counter_size_file sizeof(int)
+
+#define p1_shem "p1_sem"
+#define p2_shem "p1_sem"
+
+
+
 
 void P1(int algorithm,int q,int bucketsNo,int frames);
 void P2(int algorithm,int q,int bucketsNo,int frames);
@@ -22,6 +34,7 @@ int main(int argc, char const *argv[]) {
     int q=20;
     int frames=3; //
     P1(1,q,4,frames);
+    initialized_all_shared_memmory_semaphores();
     //P2(1,q,10,frames);
 
     // int pid = fork();
@@ -51,9 +64,9 @@ void P1(int algorithm,int q,int bucketsNo,int frames){
 void P2(int algorithm,int q,int bucketsNo,int frames){
     string gcc_file="gcc.trace";
     if(algorithm==1)
-        lru(q,bucketsNo,frames/2,gcc_file);
+        lru(q,bucketsNo,frames,gcc_file);
     else
-        Second_chance(q,bucketsNo,frames/2,gcc_file);
+        Second_chance(q,bucketsNo,frames,gcc_file);
 
 }
 
