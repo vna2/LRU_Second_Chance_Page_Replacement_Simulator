@@ -19,14 +19,14 @@ public:
     int bucketsz;
     bucket();
     listPg *page;
-    int find_replace(Page *item,listPg *oldest_page,int alg,listPg *write_back);
+    int find_replace(Page *item,listPg *oldest_page,int alg);
     void print();
 };
 
 class hash_table{
 public:
     bucket **table;
-    listPg *write_back;
+    int write_back;
     int page_faults;
     int write_counter;
     int read_counter;

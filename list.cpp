@@ -18,7 +18,7 @@ void Page::print()
     cout<< "Second chance: " <<Second_chance<<endl<<endl;
 }
 
-int listPg::find_replace(Page *pg,listPg *oldest_page,int alg,listPg *write_back){
+int listPg::find_replace(Page *pg,listPg *oldest_page,int alg){
     node *temp = new node;
     temp =head;
 if(alg==1){
@@ -26,7 +26,7 @@ if(alg==1){
     while(temp!=NULL){
         if(temp->r->address_num==pg->address_num){
             //replace
-            if(strcmp(temp->r->role,"W")==0 && strcmp(pg->role,"R")==0){
+            if(strcmp(temp->r->role,"W")==0){
                 pg->dirty= true;
             }
             oldest_page->delete_item(pg);
@@ -46,11 +46,14 @@ if(alg==1){
                 return 1;
             }else{
                 //replace
+                if(strcmp(temp->r->role,"W")==0){
+                    pg->dirty= true;
+                }
                 temp->r=pg;
                 temp->r->Second_chance=false;
                 oldest_page->delete_item(pg);
                 oldest_page->push_back(pg);
-                temp->r=pg;
+
                 if(temp->next==NULL){//
                     tail=temp;
                 }

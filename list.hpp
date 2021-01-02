@@ -55,9 +55,8 @@ class listPg{
     void print();
     void delete_first();
     void delete_item(Page *value);
-    int find_replace(Page *pg,listPg *oldest_page,int alg,listPg *write_back);
+    int find_replace(Page *pg,listPg *oldest_page,int alg);
     int find(Page *pg);
-    void replace_lru(Page *pg_old,Page *pg_new,listPg *oldest_page);
 
 };
 #endif

@@ -6,21 +6,6 @@
 
 using namespace std;
 
-#define sh_mem_p1_key_file "SH_MEM_PM1"
-#define sh_mem_p1_size_file sizeof(stats*)
-
-#define sh_mem_p2_key_file "SH_MEM_PM2"
-#define sh_mem_p2_size_file sizeof(stats*)
-
-#define sh_mem_counter_key_file "SH_MEM_COUNTERS"
-#define sh_mem_counter_size_file sizeof(int)
-
-#define p1_shem "p1_sem"
-#define p2_shem "p1_sem"
-
-
-
-
 void P1(int algorithm,int q,int bucketsNo,int frames);
 void P2(int algorithm,int q,int bucketsNo,int frames);
 int returnHash(char* s,int MAX_LEN);
@@ -31,8 +16,8 @@ void lru(int q,int bucketsno,int frames,string file_);
 void Second_chance(int q,int bucketsNo,int frames,string file_);
 void cut_hex(char* mem);
 int main(int argc, char const *argv[]) {
-    int q=20;
-    int frames=3; //
+    int q=100000;
+    int frames=10; //
     P1(1,q,4,frames);
     //initialized_all_shared_memmory_semaphores();
     //P2(1,q,10,frames);
@@ -71,6 +56,26 @@ void P2(int algorithm,int q,int bucketsNo,int frames){
 }
 
 void lru(int q,int bucketsNo,int frames,string file_){
+    int p1_shem = get_semaphore_id_from_file(sh_mem_p1_key_file);
+    int p2_shem = get_semaphore_id_from_file(sh_mem_p2_key_file);
+
+
+    // int mem_seg_id=get_memory_id_from_file(P_shared_mem_key_file,P_shared_mem_size_file);
+    // message* shared_memory = (message*) shmat(mem_seg_id, NULL, 0);
+    // if(shared_memory==(void*)-1)die("shared memory P");
+    // #if DEBUG >= 2
+    //     printf ("! shared memory attached at address %p\n", shared_memory);
+    // #endif
+    // strcpy(shared_memory->message_arrey,argv[i+1]);
+    // //~~~~~~~~~~~~~~~~~~~clears~~~~~~~~~~~~~~~~~~~~~~~//
+    // /* Detach the shared memory segment. */
+    // shmdt(shared_memory);
+    // #if DEBUG>= 2
+    //     cout<<"\t"<<getpid()<<" detached memory P-ENC\n";
+    // #endif
+
+
+
     hash_table *table= new hash_table(bucketsNo);
     listPg *oldest_page=new listPg;
     unsigned int address_num=0 ;
@@ -96,15 +101,17 @@ void lru(int q,int bucketsNo,int frames,string file_){
         //Page* pageL= new Page(address,address_num,role,i);
 
 
-        if(strcmp(role,"W")==0)
+        if(strcmp(role,"W")==0){
             table->write_counter++;
+            page->dirty=true;
+        }
         else
             table->read_counter++;
         hash_num =hash_index(page->address_num,bucketsNo);
         //hash_num=returnHash(address,bucketsNo
 
         if(frame_counter<frames){
-            if(table->table[hash_num]->find_replace(page,oldest_page,1,table->write_back)==0){
+            if(table->table[hash_num]->find_replace(page,oldest_page,1)==0){
                 table->table[hash_num]->page->push_back(page);
                 oldest_page->push_back(page);
                 table->page_faults++;
@@ -114,10 +121,13 @@ void lru(int q,int bucketsNo,int frames,string file_){
         }else{
             //int hash= hash_index(oldest_page->head->r->address_num,bucketsNo);
 
-            if(table->table[hash_num]->find_replace(page,oldest_page,1,table->write_back)==0){//If find the same page we will replace
+            if(table->table[hash_num]->find_replace(page,oldest_page,1)==0){//If find the same page we will replace
                 //Else we replace the oldest page
                 //LRU
                 int hash= hash_index(oldest_page->head->r->address_num,bucketsNo);
+                if(oldest_page->head->r->dirty){
+                    table->write_back++;
+                }
                 table->table[hash]->page->delete_item(oldest_page->head->r);
                 table->table[hash_num]->page->push_back(page);
                 oldest_page->delete_first();
@@ -141,8 +151,9 @@ void lru(int q,int bucketsNo,int frames,string file_){
     cout << "~~~~~~~~~~~Stats~~~~~~~~~~~~~~\n";
     cout << "Page write: "<< table->write_counter<<endl;
     cout << "Page read: "<< table->read_counter<<endl;
+    cout << "Write back: "<< table->write_back<<endl;
     cout << "Page faults: "<< table->page_faults<<endl;
-    cout << "frames: "   << frame_counter<<endl;
+    cout << "Frames: "   << frame_counter<<endl;
     delete oldest_page;
     delete table;
 }
@@ -173,15 +184,16 @@ void Second_chance(int q,int bucketsNo,int frames,string file_){
         //Page* pageL= new Page(address,address_num,role,i);
 
 
-        if(strcmp(role,"W")==0)
+        if(strcmp(role,"W")==0){
             table->write_counter++;
+            page->dirty=true;
+        }
         else
             table->read_counter++;
         hash_num =hash_index(page->address_num,bucketsNo);
-        //hash_num=returnHash(address,bucketsNo
 
         if(frame_counter<frames){
-            if(table->table[hash_num]->find_replace(page,oldest_page,2,table->write_back)==0){
+            if(table->table[hash_num]->find_replace(page,oldest_page,2)==0){
                 table->table[hash_num]->page->push_back(page);
                 oldest_page->push_back(page);
                 table->page_faults++;
@@ -189,13 +201,13 @@ void Second_chance(int q,int bucketsNo,int frames,string file_){
                 frame_counter++;
             }
         }else{
-            if(table->table[hash_num]->find_replace(page,oldest_page,2,table->write_back)==0){//If find the same page we will replace
+            if(table->table[hash_num]->find_replace(page,oldest_page,2)==0){//If find the same page we will replace
                 //Else we replace the oldest page
-                #if DEBUG>=3
-                    cout<< "OLD PAGE ADDRESS: " << oldest_page->head->r->address<<endl;
-                #endif
                 //SECOND CHANCE
                 int hash= hash_index(oldest_page->head->r->address_num,bucketsNo);
+                if(oldest_page->head->r->dirty){
+                    table->write_back++;
+                }
                 table->table[hash]->page->delete_item(oldest_page->head->r);
                 table->table[hash_num]->page->push_back(page);
                 oldest_page->delete_first();
@@ -219,6 +231,7 @@ void Second_chance(int q,int bucketsNo,int frames,string file_){
     cout << "~~~~~~~~~~~Stats~~~~~~~~~~~~~~\n";
     cout << "Page write: "<< table->write_counter<<endl;
     cout << "Page read: "<< table->read_counter<<endl;
+    cout << "Write back: "<< table->write_back<<endl;
     cout << "Page faults: "<< table->page_faults<<endl;
     cout << "frames: "   << frame_counter<<endl;
     delete oldest_page;
