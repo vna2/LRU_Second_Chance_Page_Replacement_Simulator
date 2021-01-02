@@ -34,7 +34,7 @@ int main(int argc, char const *argv[]) {
     int q=20;
     int frames=3; //
     P1(1,q,4,frames);
-    initialized_all_shared_memmory_semaphores();
+    //initialized_all_shared_memmory_semaphores();
     //P2(1,q,10,frames);
 
     // int pid = fork();
@@ -104,7 +104,7 @@ void lru(int q,int bucketsNo,int frames,string file_){
         //hash_num=returnHash(address,bucketsNo
 
         if(frame_counter<frames){
-            if(table->table[hash_num]->find_replace(page,oldest_page,1)==0){
+            if(table->table[hash_num]->find_replace(page,oldest_page,1,table->write_back)==0){
                 table->table[hash_num]->page->push_back(page);
                 oldest_page->push_back(page);
                 table->page_faults++;
@@ -114,11 +114,8 @@ void lru(int q,int bucketsNo,int frames,string file_){
         }else{
             //int hash= hash_index(oldest_page->head->r->address_num,bucketsNo);
 
-            if(table->table[hash_num]->find_replace(page,oldest_page,1)==0){//If find the same page we will replace
+            if(table->table[hash_num]->find_replace(page,oldest_page,1,table->write_back)==0){//If find the same page we will replace
                 //Else we replace the oldest page
-                #if DEBUG>=1
-                    cout<< "OLD PAGE ADDRESS: " << oldest_page->head->r->address<<endl;
-                #endif
                 //LRU
                 int hash= hash_index(oldest_page->head->r->address_num,bucketsNo);
                 table->table[hash]->page->delete_item(oldest_page->head->r);
@@ -132,10 +129,9 @@ void lru(int q,int bucketsNo,int frames,string file_){
             }
         }
         #if DEBUG>=1
-        cout << "frames: "<<frame_counter<<endl;
+        //cout << "frames: "<<frame_counter<<endl;
         //oldest_page->print();
-        table->print();
-
+        //table->print();
         #endif
     }
     #if DEBUG>=1
@@ -185,7 +181,7 @@ void Second_chance(int q,int bucketsNo,int frames,string file_){
         //hash_num=returnHash(address,bucketsNo
 
         if(frame_counter<frames){
-            if(table->table[hash_num]->find_replace(page,oldest_page,2)==0){
+            if(table->table[hash_num]->find_replace(page,oldest_page,2,table->write_back)==0){
                 table->table[hash_num]->page->push_back(page);
                 oldest_page->push_back(page);
                 table->page_faults++;
@@ -193,7 +189,7 @@ void Second_chance(int q,int bucketsNo,int frames,string file_){
                 frame_counter++;
             }
         }else{
-            if(table->table[hash_num]->find_replace(page,oldest_page,2)==0){//If find the same page we will replace
+            if(table->table[hash_num]->find_replace(page,oldest_page,2,table->write_back)==0){//If find the same page we will replace
                 //Else we replace the oldest page
                 #if DEBUG>=3
                     cout<< "OLD PAGE ADDRESS: " << oldest_page->head->r->address<<endl;

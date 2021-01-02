@@ -18,7 +18,8 @@ public:
     int reads;
     int writes;
     int page_faults;
-    int fraems;
+    int frames;
+    int write_back;
 };
 
 class Page{
@@ -31,6 +32,7 @@ public:
     char role[2];
     int t;
     bool Second_chance;
+    bool dirty;
 
 };
 
@@ -53,8 +55,7 @@ class listPg{
     void print();
     void delete_first();
     void delete_item(Page *value);
-    node * return_first_item();
-    int find_replace(Page *pg,listPg *oldest_page,int alg);
+    int find_replace(Page *pg,listPg *oldest_page,int alg,listPg *write_back);
     int find(Page *pg);
     void replace_lru(Page *pg_old,Page *pg_new,listPg *oldest_page);
 

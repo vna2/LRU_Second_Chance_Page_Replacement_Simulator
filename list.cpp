@@ -7,6 +7,7 @@ Page::Page(char* _address,unsigned int _address_num,char* _role,clock_t _time){
     strcpy(this->role,_role);
     address_num=_address_num;
     this->t=_time;
+    dirty=false;
 }
 
 void Page::print()
@@ -17,7 +18,7 @@ void Page::print()
     cout<< "Second chance: " <<Second_chance<<endl<<endl;
 }
 
-int listPg::find_replace(Page *pg,listPg *oldest_page,int alg){
+int listPg::find_replace(Page *pg,listPg *oldest_page,int alg,listPg *write_back){
     node *temp = new node;
     temp =head;
 if(alg==1){
@@ -25,6 +26,9 @@ if(alg==1){
     while(temp!=NULL){
         if(temp->r->address_num==pg->address_num){
             //replace
+            if(strcmp(temp->r->role,"W")==0 && strcmp(pg->role,"R")==0){
+                pg->dirty= true;
+            }
             oldest_page->delete_item(pg);
             oldest_page->push_back(pg);
             temp->r=pg;
@@ -47,6 +51,9 @@ if(alg==1){
                 oldest_page->delete_item(pg);
                 oldest_page->push_back(pg);
                 temp->r=pg;
+                if(temp->next==NULL){//
+                    tail=temp;
+                }
                 return 1;
             }
         }
@@ -81,17 +88,17 @@ void listPg::push_back(Page *value){
 
     }
     else{
-        // tail->next=new node;
-        // tail->next->r=value;
-        // length++;
-        // tail=tail->next;
-        while(temp->next!=NULL){
-            temp=temp->next;
-        }
-        temp->next=new node;
-        temp=temp->next;
-        temp->r=value;
-        temp->next=NULL;
+        tail->next=new node;
+        tail->next->r=value;
+        length++;
+        tail=tail->next;
+        // while(temp->next!=NULL){
+        //     temp=temp->next;
+        // }
+        // temp->next=new node;
+        // temp=temp->next;
+        // temp->r=value;
+        // temp->next=NULL;
 
     }
 }
