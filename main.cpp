@@ -20,8 +20,8 @@ void Second_chance(int q,int bucketsNo,int frames,string file_);
 void cut_hex(char* mem);
 int main(int argc, char const *argv[]) {
     int q=20;
-    int frames=10; //
-    P1(2,q,4,frames);
+    int frames=3; //
+    P1(1,q,4,frames);
     //P2(1,q,10,frames);
 
     // int pid = fork();
@@ -40,9 +40,9 @@ int main(int argc, char const *argv[]) {
 void P1(int algorithm,int q,int bucketsNo,int frames){
     string bzip_file="bzip.trace";
     if(algorithm==1)
-        lru(q,bucketsNo,frames/2,bzip_file);
+        lru(q,bucketsNo,frames,bzip_file);
     else
-        Second_chance(q,bucketsNo,frames/2,bzip_file);
+        Second_chance(q,bucketsNo,frames,bzip_file);
 
 
 }
