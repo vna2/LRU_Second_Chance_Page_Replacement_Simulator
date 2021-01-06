@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Page::Page(char* _address,unsigned int _address_num,char* _role,clock_t _time){
+Page::Page(char* _address,unsigned int _address_num,char* _role,unsigned int _time){
     strcpy(this->address,_address);
     strcpy(this->role,_role);
     address_num=_address_num;
@@ -14,6 +14,7 @@ void Page::print()
 {
     cout<<"Address: "<<address<<endl;
     cout<<"Address_num: "<<address_num<<endl;
+    cout<<"Time: "<<t<<endl;
     cout<<"Role: "<<role<<endl;
     cout<< "Second chance: " <<Second_chance<<endl<<endl;
 }
@@ -32,6 +33,8 @@ if(alg==1){
             oldest_page->delete_item(pg);
             oldest_page->push_back(pg);
             temp->r=pg;
+            temp->r->t =pg->t;
+            temp->r->address_num=pg->address_num;
             return 1;
         }
         temp=temp->next;
@@ -50,13 +53,15 @@ if(alg==1){
                     pg->dirty= true;
                 }
                 temp->r=pg;
+                temp->r->t =pg->t;
+                temp->r->address_num=pg->address_num;
                 temp->r->Second_chance=false;
                 oldest_page->delete_item(pg);
                 oldest_page->push_back(pg);
 
-                if(temp->next==NULL){//
-                    tail=temp;
-                }
+                // if(temp->next==NULL){//
+                //     tail=temp;
+                // }
                 return 1;
             }
         }
@@ -134,7 +139,6 @@ void listPg::delete_item(Page *value){
     prev=temp;
     if(temp->r->address_num==value->address_num){
         delete_first();
-        length--;
         return;
     }
     while( temp!=NULL){
@@ -169,6 +173,8 @@ void listPg::delete_first(){
     }
     else{
         delete temp;
+        length--;
+        //head=NULL;
     }
 }
 

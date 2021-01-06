@@ -24,7 +24,7 @@ public:
 
 class Page{
 public:
-    Page(char* _address,unsigned int _address_num, char* _role, clock_t _time);
+    Page(char* _address,unsigned int _address_num, char* _role, unsigned int _time);
     Page(){}
     void print();
     char address[6];
