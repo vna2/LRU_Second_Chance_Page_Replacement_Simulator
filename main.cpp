@@ -21,7 +21,7 @@ int main(int argc, char const *argv[]) {
     if(max_q % q != 0){
         cout<< "Max q cant divide \n";
     }
-    //lru(q,4,frames,max_q);
+    lru(q,4,frames,max_q);
     Second_chance(q,4,frames,max_q);
 
 
