@@ -17,12 +17,12 @@ void cut_hex(char* mem);
 int main(int argc, char const *argv[]) {
     int q=10;
     int frames=10; //
-    int max_q=1000;
+    int max_q=100000;
     if(max_q % q != 0){
         cout<< "Max q cant divide \n";
     }
     //lru(q,4,frames,max_q);
-    Second_chance(q,4,frames,max_q);
+    Second_chance(q,1,frames,max_q);
 
 
 
@@ -77,6 +77,7 @@ void lru(int q,int bucketsNo,int frames,int MAX_Q){
                 }
                 else
                     P1table->read_counter++;
+
                 int hash_num =hash_index(page->address_num,bucketsNo);
 
                 if(frame_counterP1+frame_counterP2<frames){
@@ -125,6 +126,16 @@ void lru(int q,int bucketsNo,int frames,int MAX_Q){
                             frame_counterP2--;
                             frame_counterP1++;
                             P2oldest_page->delete_first();
+                            P1oldest_page->push_back(page);
+                            P1table->page_faults++;
+                        }else if(P2oldest_page->length==0){
+                            int hash= hash_index(P1oldest_page->head->r->address_num,bucketsNo);
+                            if(P1oldest_page->head->r->dirty){
+                                write_back++;
+                            }
+                            P1table->table[hash]->page->delete_item(P1oldest_page->head->r);
+                            P1table->table[hash_num]->page->push_back(page);
+                            P1oldest_page->delete_first();
                             P1oldest_page->push_back(page);
                             P1table->page_faults++;
                         }
@@ -211,7 +222,17 @@ void lru(int q,int bucketsNo,int frames,int MAX_Q){
                             frame_counterP1--;
                             frame_counterP2++;
                             P2table->page_faults++;
-                    }
+                        }else if(P1oldest_page->length==0){
+                            int hash= hash_index(P1oldest_page->head->r->address_num,bucketsNo);
+                            if(P2oldest_page->head->r->dirty){
+                                write_back++;
+                            }
+                            P2table->table[hash]->page->delete_item(P2oldest_page->head->r);
+                            P2table->table[hash_num]->page->push_back(page);
+                            P2oldest_page->delete_first();
+                            P2oldest_page->push_back(page);
+                            P2table->page_faults++;
+                        }
                 }
                     //cout << "P2oldest_page->head->r->t: "<<P2oldest_page->head->r->t<<endl;
             }
@@ -279,7 +300,6 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
             for (y = 0; y < q; y++) {
                 if(i % 2 == 0){//bzip.trace file
                     unsigned int address_numP1=0 ;
-                    cout<< "P1"<<endl;
                     char address[10];
                     address[5]='\0';
                     char role[2];
@@ -343,6 +363,7 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
 
                                 ///////////
                                 if(oldestP1->t < oldestP2->t){//replace from p1 table
+                                    cout<< "P1 MPIKA P1<P2\n";
                                     if(oldestP1==P1oldest_page->head->r){// if all buckets has 1 we done them 0 and take the older
                                         temp=P1oldest_page->head;
                                         while(temp!=NULL){
@@ -372,6 +393,8 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                                     P1table->page_faults++;
                                 }
                                 else if(oldestP1->t > oldestP2->t) {//replace from p2 table
+                                    cout<< "P1 MPIKA P2<P1\n";
+
                                     if(oldestP2==P2oldest_page->head->r){// if all buckets has 1(second chance) we done them 0 and take the older
                                         temp=P2oldest_page->head;
                                         while(temp!=NULL){//find oldest page without second chance
@@ -428,6 +451,37 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                                 P2oldest_page->delete_item_second_chance(oldestP2,P2table);
                                 P1oldest_page->push_back(page);
                                 P1table->page_faults++;
+                            }else if(P2oldest_page->length==0){
+                                Page *oldestP1=P1oldest_page->head->r;
+                                node *temp;
+                                temp=P2oldest_page->head;
+                                if(oldestP1==P1oldest_page->head->r){// if all buckets has 1 we done them 0 and take the older
+                                    temp=P1oldest_page->head;
+                                    while(temp!=NULL){
+                                        int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                        P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                        temp->r->Second_chance=false;
+                                        temp=temp->next;
+                                    }
+                                }else{//we do 0 untill we find the page we wont
+                                    if(temp->r->Second_chance==false){
+                                        break;
+                                    }
+                                    int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                    P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                    temp->r->Second_chance=false;
+                                    temp=temp->next;
+                                }
+
+                                int hash= hash_index(oldestP1->address_num,bucketsNo);
+                                if(oldestP1->dirty){
+                                    write_back++;
+                                }
+                                P1oldest_page->delete_item_second_chance(oldestP1,P1table);
+                                P1table->table[hash]->page->delete_item(oldestP1);
+                                P1table->table[hash_num]->page->push_back(page);
+                                P1oldest_page->push_back(page);
+                                P1table->page_faults++;
                             }
                         }
 
@@ -453,7 +507,6 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                     cut_hex(address);
 
                     address_numP2= hex2int(address);
-                    cout<< "P2"<<endl;
 
                     Page* page= new Page(address,address_numP2,role,t++);
 
