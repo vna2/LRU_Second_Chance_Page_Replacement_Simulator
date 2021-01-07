@@ -21,7 +21,7 @@ int main(int argc, char const *argv[]) {
     if(max_q % q != 0){
         cout<< "Max q cant divide \n";
     }
-    lru(q,4,frames,max_q);
+    //lru(q,4,frames,max_q);
     Second_chance(q,4,frames,max_q);
 
 
@@ -279,7 +279,7 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
             for (y = 0; y < q; y++) {
                 if(i % 2 == 0){//bzip.trace file
                     unsigned int address_numP1=0 ;
-
+                    cout<< "P1"<<endl;
                     char address[10];
                     address[5]='\0';
                     char role[2];
@@ -299,54 +299,133 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                     }
                     else
                         P1table->read_counter++;
+
                     int hash_num =hash_index(page->address_num,bucketsNo);
 
                     if(frame_counterP1+frame_counterP2<frames){
-                        if(P1table->table[hash_num]->find_replace(page,P1oldest_page,1)==0){
+                        if(P1table->table[hash_num]->find_replace(page,P1oldest_page,2)==0){
                             P1table->table[hash_num]->page->push_back(page);
                             P1oldest_page->push_back(page);
                             P1table->page_faults++;
                             frame_counterP1++;
                         }
                     }else{
-                        if(P1table->table[hash_num]->find_replace(page,P1oldest_page,1)==0){//If find the same page we will replace
-                            //Else we replace the P1oldest page
-                            //LRU
-                            if(  P1oldest_page->length!=0 && P2oldest_page->length!=0 ){
-                                if(P1oldest_page->head->r->t < P2oldest_page->head->r->t){//replace from p1 table
-                                    int hash= hash_index(P1oldest_page->head->r->address_num,bucketsNo);
-                                    if(P1oldest_page->head->r->dirty){
+                        if(P1table->table[hash_num]->find_replace(page,P1oldest_page,2)==0){//If find the same page we will replace
+                            //Else we replace the P1oldest page(chance)
+                            //Second_chance
+                            if(  P1oldest_page->length!=0 && P2oldest_page->length!=0 ){//if both frames has pages
+                                ////////
+                                Page *oldestP1=P1oldest_page->head->r;
+                                Page *oldestP2=P2oldest_page->head->r;
+                                node *temp;
+                                temp=P1oldest_page->head;
+                                while(temp!=NULL){//find oldest page without second chance
+                                    if(temp->r->Second_chance==false){
+                                        oldestP1=temp->r;
+                                        break;
+                                    }
+                                    int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                    P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                    temp->r->Second_chance=false;
+                                    temp=temp->next;
+                                }
+                                temp=P2oldest_page->head;
+                                while(temp!=NULL){
+                                    if(temp->r->Second_chance==false){
+                                        oldestP2=temp->r;
+                                        break;
+                                    }
+                                    int hash=hash_index(temp->r->address_num,P2table->bucketsNo);
+                                    P2table->table[hash]->page->find_change_second_chance(temp->r);
+                                    temp->r->Second_chance=false;
+                                    temp=temp->next;
+                                }
+
+                                ///////////
+                                if(oldestP1->t < oldestP2->t){//replace from p1 table
+                                    if(oldestP1==P1oldest_page->head->r){// if all buckets has 1 we done them 0 and take the older
+                                        temp=P1oldest_page->head;
+                                        while(temp!=NULL){
+                                            int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                            P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                            temp->r->Second_chance=false;
+                                            temp=temp->next;
+                                        }
+                                    }else{//we do 0 untill we find the page we wont
+                                        if(temp->r->Second_chance==false){
+                                            break;
+                                        }
+                                        int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                        P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                        temp->r->Second_chance=false;
+                                        temp=temp->next;
+                                    }
+
+                                    int hash= hash_index(oldestP1->address_num,bucketsNo);
+                                    if(oldestP1->dirty){
                                         write_back++;
                                     }
-                                    P1table->table[hash]->page->delete_item(P1oldest_page->head->r);
+                                    P1oldest_page->delete_item_second_chance(oldestP1,P1table);
+                                    P1table->table[hash]->page->delete_item(oldestP1);
                                     P1table->table[hash_num]->page->push_back(page);
-                                    P1oldest_page->delete_first();
                                     P1oldest_page->push_back(page);
                                     P1table->page_faults++;
                                 }
-                                else if(P1oldest_page->head->r->t > P2oldest_page->head->r->t) {//replace from p2 table
-                                    int hash= hash_index(P2oldest_page->head->r->address_num,bucketsNo);
-                                    if(P2oldest_page->head->r->dirty){
+                                else if(oldestP1->t > oldestP2->t) {//replace from p2 table
+                                    if(oldestP2==P2oldest_page->head->r){// if all buckets has 1(second chance) we done them 0 and take the older
+                                        temp=P2oldest_page->head;
+                                        while(temp!=NULL){//find oldest page without second chance
+                                            int hash=hash_index(temp->r->address_num,P2table->bucketsNo);
+                                            P2table->table[hash]->page->find_change_second_chance(temp->r);
+                                            temp->r->Second_chance=false;
+                                            temp=temp->next;
+                                        }
+                                    }else{//we do 0 until we find the page we wont
+                                        if(temp->r->Second_chance==false){
+                                            break;
+                                        }
+                                        int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                        P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                        temp->r->Second_chance=false;
+                                        temp=temp->next;
+                                    }
+                                    int hash= hash_index(oldestP2->address_num,bucketsNo);
+                                    if(oldestP2->dirty){
                                         write_back++;
                                     }
-                                    P2table->table[hash]->page->delete_item(P2oldest_page->head->r);
-                                    P1table->table[hash_num]->page->push_back(page);
                                     frame_counterP2--;
                                     frame_counterP1++;
-                                    P2oldest_page->delete_first();
+                                    P2oldest_page->delete_item_second_chance(oldestP2,P2table);
+                                    P2table->table[hash]->page->delete_item(oldestP2);
+                                    P1table->table[hash_num]->page->push_back(page);
                                     P1oldest_page->push_back(page);
                                     P1table->page_faults++;
                                 }
                             }else if(P1oldest_page->length==0){
-                                int hash= hash_index(P2oldest_page->head->r->address_num,bucketsNo);
-                                if(P2oldest_page->head->r->dirty){
+                                //////
+                                Page *oldestP2=P2oldest_page->head->r;
+                                node *temp;
+                                temp=P2oldest_page->head;
+                                while(temp!=NULL){
+                                    if(temp->r->Second_chance==false){
+                                        oldestP2=temp->r;
+                                        break;
+                                    }
+                                    int hash=hash_index(temp->r->address_num,P2table->bucketsNo);
+                                    P2table->table[hash]->page->find_change_second_chance(temp->r);
+                                    temp->r->Second_chance=false;
+                                    temp=temp->next;
+                                }
+                                /////
+                                int hash= hash_index(oldestP2->address_num,bucketsNo);
+                                if(oldestP2->dirty){
                                     write_back++;
                                 }
-                                P2table->table[hash]->page->delete_item(P2oldest_page->head->r);
+                                P2table->table[hash]->page->delete_item(oldestP2);
                                 P1table->table[hash_num]->page->push_back(page);
                                 frame_counterP2--;
                                 frame_counterP1++;
-                                P2oldest_page->delete_first();
+                                P2oldest_page->delete_item_second_chance(oldestP2,P2table);
                                 P1oldest_page->push_back(page);
                                 P1table->page_faults++;
                             }
@@ -374,6 +453,7 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                     cut_hex(address);
 
                     address_numP2= hex2int(address);
+                    cout<< "P2"<<endl;
 
                     Page* page= new Page(address,address_numP2,role,t++);
 
@@ -394,41 +474,110 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                         }
                     }else{
                         if(P2table->table[hash_num]->find_replace(page,P2oldest_page,2)==0){//If find the same page we will replace
-                                //Else we replace the P2oldest page
-                                //LRU
+                            //Else we replace the P2 oldest page(chance)
+                            //Second_chance
+
                             if(  P1oldest_page->length!=0 && P2oldest_page->length!=0 ){
-                                if(P2oldest_page->head->r->t < P1oldest_page->head->r->t){//replace from p2 table
-                                    int hash= hash_index(P2oldest_page->head->r->address_num,bucketsNo);
-                                    if(P2oldest_page->head->r->dirty){
+                                /////
+                                Page *oldestP1=P1oldest_page->head->r;//temp init
+                                Page *oldestP2=P2oldest_page->head->r;
+                                node *temp;
+                                temp=P1oldest_page->head;
+                                while(temp!=NULL){//find oldest page without second chance
+                                    if(temp->r->Second_chance==false){
+                                        oldestP1=temp->r;
+                                        break;
+                                    }
+                                    temp=temp->next;
+                                }
+                                temp=P2oldest_page->head;
+                                while(temp!=NULL){
+                                    if(temp->r->Second_chance==false){
+                                        oldestP2=temp->r;
+                                        break;
+                                    }
+                                    temp=temp->next;
+                                }
+                                //////
+                                if(oldestP2->t < oldestP1->t){//replace from p2 table
+                                    if(oldestP2==P2oldest_page->head->r){// if all buckets has 1(second chance) we done them 0 and take the older
+                                        temp=P2oldest_page->head;
+                                        while(temp!=NULL){//find oldest page without second chance
+                                            int hash=hash_index(temp->r->address_num,P2table->bucketsNo);
+                                            P2table->table[hash]->page->find_change_second_chance(temp->r);
+                                            temp->r->Second_chance=false;
+                                            temp=temp->next;
+                                        }
+                                    }else{//we do 0 until we find the page we wont
+                                        if(temp->r->Second_chance==false){
+                                            break;
+                                        }
+                                        int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                        P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                        temp->r->Second_chance=false;
+                                        temp=temp->next;
+                                    }
+                                    int hash= hash_index(oldestP2->address_num,bucketsNo);
+                                    if(oldestP2->dirty){
                                         write_back++;
                                     }
-                                    P2table->table[hash]->page->delete_item(P2oldest_page->head->r);
+                                    P2oldest_page->delete_item_second_chance(oldestP2,P2table);
+                                    P2table->table[hash]->page->delete_item(oldestP2);
                                     P2table->table[hash_num]->page->push_back(page);
-                                    P2oldest_page->delete_first();
                                     P2oldest_page->push_back(page);
                                     P2table->page_faults++;
                                 }
-                                else if(P2oldest_page->head->r->t > P1oldest_page->head->r->t){//replace from p1 table
-                                    int hash= hash_index(P1oldest_page->head->r->address_num,bucketsNo);
-                                    if(P1oldest_page->head->r->dirty){
+                                else if(oldestP2->t > oldestP1->t){//replace from p1 table
+                                    if(oldestP1==P1oldest_page->head->r){// if all buckets has 1 we done them 0 and take the older
+                                        temp=P1oldest_page->head;
+                                        while(temp!=NULL){
+                                            int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                            P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                            temp->r->Second_chance=false;
+                                            temp=temp->next;
+                                        }
+                                    }else{//we do 0 untill we find the page we wont
+                                        if(temp->r->Second_chance==false){
+                                            break;
+                                        }
+                                        int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                        P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                        temp->r->Second_chance=false;
+                                        temp=temp->next;
+                                    }
+                                    int hash= hash_index(oldestP1->address_num,bucketsNo);
+                                    if(oldestP1->dirty){
                                         write_back++;
                                     }
-                                    P1table->table[hash]->page->delete_item(P1oldest_page->head->r);
+                                    P1oldest_page->delete_item_second_chance(oldestP1,P1table);
+                                    P1table->table[hash]->page->delete_item(oldestP1);
                                     P2table->table[hash_num]->page->push_back(page);
-                                    P1oldest_page->delete_first();
                                     P2oldest_page->push_back(page);
                                     frame_counterP1--;
                                     frame_counterP2++;
                                     P2table->page_faults++;
                                 }
                             }else if(P2oldest_page->length==0){
-                                int hash= hash_index(P1oldest_page->head->r->address_num,bucketsNo);
-                                if(P1oldest_page->head->r->dirty){
+                                Page *oldestP1=P1oldest_page->head->r;
+                                node *temp;
+                                temp=P1oldest_page->head;
+                                while(temp!=NULL){
+                                    if(temp->r->Second_chance==false){
+                                        oldestP1=temp->r;
+                                        break;
+                                    }
+                                    int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                    P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                    temp->r->Second_chance=false;
+                                    temp=temp->next;
+                                }
+                                int hash= hash_index(oldestP1->address_num,bucketsNo);
+                                if(oldestP1->dirty){
                                     write_back++;
                                 }
-                                P1table->table[hash]->page->delete_item(P1oldest_page->head->r);
+                                P1oldest_page->delete_item_second_chance(oldestP1,P1table);
+                                P1table->table[hash]->page->delete_item(oldestP1);
                                 P2table->table[hash_num]->page->push_back(page);
-                                P1oldest_page->delete_first();
                                 P2oldest_page->push_back(page);
                                 frame_counterP1--;
                                 frame_counterP2++;
@@ -475,37 +624,7 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
 
 }
 
-int returnHash(char *s,int MAX_LEN)
-{
-    // A simple hashing, no collision handled
-    int sum=0,index=0;
 
-    for(unsigned long int i=0; i < strlen(s); i++)
-    {
-        sum += s[i];
-    }
-    index = sum % MAX_LEN;
-    return index;
-}
-
-int hash_index(int s,int MAX_LEN){
-    return s % MAX_LEN;
-}
-
-unsigned int hex2int(char *hex) {
-    uint32_t val = 0;
-    while (*hex) {
-        // get current character then increment
-        uint8_t byte = *hex++;
-        // transform hex character to the 4bit equivalent number, using the ascii table indexes
-        if (byte >= '0' && byte <= '9') byte = byte - '0';
-        else if (byte >= 'a' && byte <='f') byte = byte - 'a' + 10;
-        else if (byte >= 'A' && byte <='F') byte = byte - 'A' + 10;
-        // shift 4 to make space for new digit, and add the 4 bits of the new digit
-        val = (val << 4) | (byte & 0xF);
-    }
-    return val;
-}
 
 void cut_hex(char* mem){
   char temp[100];

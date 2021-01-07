@@ -45,3 +45,35 @@ hash_table::hash_table(int bucketsNo_){
     }
 
 }
+
+int returnHash(char *s,int MAX_LEN)
+{
+    // A simple hashing, no collision handled
+    int sum=0,index=0;
+
+    for(unsigned long int i=0; i < strlen(s); i++)
+    {
+        sum += s[i];
+    }
+    index = sum % MAX_LEN;
+    return index;
+}
+
+int hash_index(int s,int MAX_LEN){
+    return s % MAX_LEN;
+}
+
+unsigned int hex2int(char *hex) {
+    uint32_t val = 0;
+    while (*hex) {
+        // get current character then increment
+        uint8_t byte = *hex++;
+        // transform hex character to the 4bit equivalent number, using the ascii table indexes
+        if (byte >= '0' && byte <= '9') byte = byte - '0';
+        else if (byte >= 'a' && byte <='f') byte = byte - 'a' + 10;
+        else if (byte >= 'A' && byte <='F') byte = byte - 'A' + 10;
+        // shift 4 to make space for new digit, and add the 4 bits of the new digit
+        val = (val << 4) | (byte & 0xF);
+    }
+    return val;
+}

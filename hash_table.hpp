@@ -13,6 +13,8 @@
 using namespace std;
 
 #define DEBUG 2
+class listPg;
+class Page;
 
 class bucket{
 public:
@@ -32,7 +34,6 @@ public:
     int read_counter;
     int bucketsNo;
     hash_table(int bucketsNo);
-
     void print();
 };
 

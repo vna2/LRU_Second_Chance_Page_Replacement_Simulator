@@ -10,8 +10,11 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include "hash_table.hpp"
+
 
 using namespace std;
+class hash_table;
 
 class stats{
 public:
@@ -55,8 +58,9 @@ class listPg{
     void print();
     void delete_first();
     void delete_item(Page *value);
+    void delete_item_second_chance(Page *value,hash_table *P1table);
     int find_replace(Page *pg,listPg *oldest_page,int alg);
-    int find(Page *pg);
+    int find_change_second_chance(Page *pg);
 
 };
 #endif
