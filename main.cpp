@@ -15,14 +15,14 @@ void lru(int q,int bucketsno,int frames,int MAX_Q);
 void Second_chance(int q,int bucketsNo,int frames,int MAX_Q);
 void cut_hex(char* mem);
 int main(int argc, char const *argv[]) {
-    int q=10;
+    int q=100;
     int frames=10; //
-    int max_q=100000;
+    int max_q=100;
     if(max_q % q != 0){
         cout<< "Max q cant divide \n";
     }
-    //lru(q,4,frames,max_q);
-    Second_chance(q,1,frames,max_q);
+    lru(q,4,frames,max_q);
+    //Second_chance(q,1,frames,max_q);
 
 
 
@@ -372,14 +372,16 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                                             temp->r->Second_chance=false;
                                             temp=temp->next;
                                         }
-                                    }else{//we do 0 untill we find the page we wont
-                                        if(temp->r->Second_chance==false){
-                                            break;
+                                    }else{//we put 0 untill we find the page we wont
+                                        while(temp!=NULL){
+                                            if(temp->r->Second_chance==false){
+                                                break;
+                                            }
+                                            int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                            P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                            temp->r->Second_chance=false;
+                                            temp=temp->next;
                                         }
-                                        int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
-                                        P1table->table[hash]->page->find_change_second_chance(temp->r);
-                                        temp->r->Second_chance=false;
-                                        temp=temp->next;
                                     }
 
                                     int hash= hash_index(oldestP1->address_num,bucketsNo);
@@ -393,7 +395,6 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                                     P1table->page_faults++;
                                 }
                                 else if(oldestP1->t > oldestP2->t) {//replace from p2 table
-                                    cout<< "P1 MPIKA P2<P1\n";
 
                                     if(oldestP2==P2oldest_page->head->r){// if all buckets has 1(second chance) we done them 0 and take the older
                                         temp=P2oldest_page->head;
@@ -404,13 +405,15 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                                             temp=temp->next;
                                         }
                                     }else{//we do 0 until we find the page we wont
-                                        if(temp->r->Second_chance==false){
-                                            break;
+                                        while(temp!=NULL){
+                                            if(temp->r->Second_chance==false){
+                                                break;
+                                            }
+                                            int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                            P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                            temp->r->Second_chance=false;
+                                            temp=temp->next;
                                         }
-                                        int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
-                                        P1table->table[hash]->page->find_change_second_chance(temp->r);
-                                        temp->r->Second_chance=false;
-                                        temp=temp->next;
                                     }
                                     int hash= hash_index(oldestP2->address_num,bucketsNo);
                                     if(oldestP2->dirty){
@@ -464,13 +467,15 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                                         temp=temp->next;
                                     }
                                 }else{//we do 0 untill we find the page we wont
-                                    if(temp->r->Second_chance==false){
-                                        break;
+                                    while(temp!=NULL){
+                                        if(temp->r->Second_chance==false){
+                                            break;
+                                        }
+                                        int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                        P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                        temp->r->Second_chance=false;
+                                        temp=temp->next;
                                     }
-                                    int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
-                                    P1table->table[hash]->page->find_change_second_chance(temp->r);
-                                    temp->r->Second_chance=false;
-                                    temp=temp->next;
                                 }
 
                                 int hash= hash_index(oldestP1->address_num,bucketsNo);
@@ -562,13 +567,15 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                                             temp=temp->next;
                                         }
                                     }else{//we do 0 until we find the page we wont
-                                        if(temp->r->Second_chance==false){
-                                            break;
+                                        while(temp!=NULL){
+                                            if(temp->r->Second_chance==false){
+                                                break;
+                                            }
+                                            int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                            P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                            temp->r->Second_chance=false;
+                                            temp=temp->next;
                                         }
-                                        int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
-                                        P1table->table[hash]->page->find_change_second_chance(temp->r);
-                                        temp->r->Second_chance=false;
-                                        temp=temp->next;
                                     }
                                     int hash= hash_index(oldestP2->address_num,bucketsNo);
                                     if(oldestP2->dirty){
@@ -590,13 +597,15 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                                             temp=temp->next;
                                         }
                                     }else{//we do 0 untill we find the page we wont
-                                        if(temp->r->Second_chance==false){
-                                            break;
+                                        while(temp!=NULL){
+                                            if(temp->r->Second_chance==false){
+                                                break;
+                                            }
+                                            int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
+                                            P1table->table[hash]->page->find_change_second_chance(temp->r);
+                                            temp->r->Second_chance=false;
+                                            temp=temp->next;
                                         }
-                                        int hash=hash_index(temp->r->address_num,P1table->bucketsNo);
-                                        P1table->table[hash]->page->find_change_second_chance(temp->r);
-                                        temp->r->Second_chance=false;
-                                        temp=temp->next;
                                     }
                                     int hash= hash_index(oldestP1->address_num,bucketsNo);
                                     if(oldestP1->dirty){
