@@ -123,7 +123,7 @@ void lru(int q,int bucketsNo,int frames,int MAX_Q){
 
                 int hash_num =hash_index(page->address_num,bucketsNo);
 
-                if(frame_counterP1+frame_counterP2<frames){
+                if(frame_counterP1+frame_counterP2<frames){//if we have free frames
                     if(P1table->table[hash_num]->find_replace(page,P1oldest_page,1)==0){
                         P1table->table[hash_num]->page->push_back(page);
                         P1oldest_page->push_back(page);
@@ -134,7 +134,7 @@ void lru(int q,int bucketsNo,int frames,int MAX_Q){
                     if(P1table->table[hash_num]->find_replace(page,P1oldest_page,1)==0){//If find the same page we will replace
                         //Else we replace the P1oldest page
                         //LRU
-                        if(  P1oldest_page->length!=0 && P2oldest_page->length!=0 ){
+                        if(  P1oldest_page->length!=0 && P2oldest_page->length!=0 ){//both has frames avaliable
                             if(P1oldest_page->head->r->t < P2oldest_page->head->r->t){//replace from p1 table
                                 int hash= hash_index(P1oldest_page->head->r->address_num,bucketsNo);
                                 if(P1oldest_page->head->r->dirty){
@@ -159,7 +159,7 @@ void lru(int q,int bucketsNo,int frames,int MAX_Q){
                                 P1oldest_page->push_back(page);
                                 P1table->page_faults++;
                             }
-                        }else if(P1oldest_page->length==0){
+                        }else if(P1oldest_page->length==0){//delete from p2 and push on P1
                             int hash= hash_index(P2oldest_page->head->r->address_num,bucketsNo);
                             if(P2oldest_page->head->r->dirty){
                                 write_back++;
@@ -171,7 +171,7 @@ void lru(int q,int bucketsNo,int frames,int MAX_Q){
                             P2oldest_page->delete_first();
                             P1oldest_page->push_back(page);
                             P1table->page_faults++;
-                        }else if(P2oldest_page->length==0){
+                        }else if(P2oldest_page->length==0){// push on p1
                             int hash= hash_index(P1oldest_page->head->r->address_num,bucketsNo);
                             if(P1oldest_page->head->r->dirty){
                                 write_back++;
@@ -186,13 +186,12 @@ void lru(int q,int bucketsNo,int frames,int MAX_Q){
 
                 }
                 #if DEBUG>=1
-                // cout << "\n\n P1 \n\n";
-                // cout << "frames: "<<frame_counterP1<<endl;
-                // cout << "OLD PAGES\n";
-                // P1oldest_page->print();
-                // cout << "BUCKET\n";
-                // P1table->print();
-
+                cout << "\n\n P1 \n\n";
+                cout << "frames: "<<frame_counterP1<<endl;
+                cout << "OLD PAGES\n";
+                P1oldest_page->print();
+                cout << "BUCKET\n";
+                P1table->print();
                 #endif
             }
             else{//gcc.trace file
@@ -217,7 +216,7 @@ void lru(int q,int bucketsNo,int frames,int MAX_Q){
                     P2table->read_counter++;
 
                 int hash_num =hash_index(page->address_num,bucketsNo);
-                if(frame_counterP1+frame_counterP2<frames){
+                if(frame_counterP1+frame_counterP2<frames){//if we have free frames
                     if(P2table->table[hash_num]->find_replace(page,P2oldest_page,1)==0){
                         P2table->table[hash_num]->page->push_back(page);
                         P2oldest_page->push_back(page);
@@ -228,7 +227,7 @@ void lru(int q,int bucketsNo,int frames,int MAX_Q){
                     if(P2table->table[hash_num]->find_replace(page,P2oldest_page,1)==0){//If find the same page we will replace
                             //Else we replace the P2oldest page
                             //LRU
-                        if(  P1oldest_page->length!=0 && P2oldest_page->length!=0 ){
+                        if(  P1oldest_page->length!=0 && P2oldest_page->length!=0 ){//both has frames avaliable
                             if(P2oldest_page->head->r->t < P1oldest_page->head->r->t){//replace from p2 table
                                 int hash= hash_index(P2oldest_page->head->r->address_num,bucketsNo);
                                 if(P2oldest_page->head->r->dirty){
@@ -253,7 +252,7 @@ void lru(int q,int bucketsNo,int frames,int MAX_Q){
                                 frame_counterP2++;
                                 P2table->page_faults++;
                             }
-                        }else if(P2oldest_page->length==0){
+                        }else if(P2oldest_page->length==0){//replace from p1 table
                             int hash= hash_index(P1oldest_page->head->r->address_num,bucketsNo);
                             if(P1oldest_page->head->r->dirty){
                                 write_back++;
@@ -265,7 +264,7 @@ void lru(int q,int bucketsNo,int frames,int MAX_Q){
                             frame_counterP1--;
                             frame_counterP2++;
                             P2table->page_faults++;
-                        }else if(P1oldest_page->length==0){
+                        }else if(P1oldest_page->length==0){//push on p2
                             int hash= hash_index(P1oldest_page->head->r->address_num,bucketsNo);
                             if(P2oldest_page->head->r->dirty){
                                 write_back++;
@@ -281,12 +280,12 @@ void lru(int q,int bucketsNo,int frames,int MAX_Q){
             }
 
                 #if DEBUG>=1
-                // cout << "\n\n P2 \n\n";
-                // cout << "frames: "<<frame_counterP2<<endl;
-                // cout << "OLD PAGES\n";
-                // P2oldest_page->print();
-                // cout << "BUCKET\n";
-                // P2table->print();
+                cout << "\n\n P2 \n\n";
+                cout << "frames: "<<frame_counterP2<<endl;
+                cout << "OLD PAGES\n";
+                P2oldest_page->print();
+                cout << "BUCKET\n";
+                P2table->print();
                 #endif
             }
         }
@@ -393,7 +392,7 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                                     temp=temp->next;
                                 }
                                 temp=P2oldest_page->head;
-                                while(temp!=NULL){
+                                while(temp!=NULL){//find oldest page without second chance
                                     if(temp->r->Second_chance==false){
                                         oldestP2=temp->r;
                                         break;
@@ -534,12 +533,12 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
 
                     }
                     #if DEBUG>=1
-                    // cout << "\n\n P1 \n\n";
-                    // cout << "frames: "<<frame_counterP1<<endl;
-                    // cout << "OLD PAGES\n";
-                    // P1oldest_page->print();
-                    // cout << "BUCKET\n";
-                    // P1table->print();
+                    cout << "\n\n P1 \n\n";
+                    cout << "frames: "<<frame_counterP1<<endl;
+                    cout << "OLD PAGES\n";
+                    P1oldest_page->print();
+                    cout << "BUCKET\n";
+                    P1table->print();
 
                     #endif
                 }
@@ -692,12 +691,12 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
                 }
 
                     #if DEBUG>=1
-                    // cout << "\n\n P2 \n\n";
-                    // cout << "frames: "<<frame_counterP2<<endl;
-                    // cout << "OLD PAGES\n";
-                    // P2oldest_page->print();
-                    // cout << "BUCKET\n";
-                    // P2table->print();
+                    cout << "\n\n P2 \n\n";
+                    cout << "frames: "<<frame_counterP2<<endl;
+                    cout << "OLD PAGES\n";
+                    P2oldest_page->print();
+                    cout << "BUCKET\n";
+                    P2table->print();
                     #endif
                 }
             }

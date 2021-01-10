@@ -12,7 +12,7 @@
 
 using namespace std;
 
-#define DEBUG 2
+#define DEBUG 0
 class listPg;
 class Page;
 
