@@ -16,15 +16,58 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q);
 void cut_hex(char* mem);
 int main(int argc, char const *argv[]) {
     int q=100;
-    int frames=10; //
-    int max_q=100;
-    if(max_q % q != 0){
-        cout<< "Max q cant divide \n";
+    int frames=1000;
+    int max_q=1000000;
+    int bucket=5;
+    int algorithm=0;
+    for (int i = 1; i < argc; i+=2)
+        if(!strcmp(argv[i],"-A"))
+            algorithm=atoi(argv[i+1]);
+        else if(!strcmp(argv[i],"-K"))
+            max_q=atoi(argv[i+1]);
+        else if(!strcmp(argv[i],"-Q"))
+            q=atoi(argv[i+1]);
+        else if(!strcmp(argv[i],"-F"))
+            frames=atoi(argv[i+1]);
+        else if(!strcmp(argv[i],"-B"))
+            bucket=atoi(argv[i+1]);
+    if(argc==1){
+        cout << "algorithm run with default values\n";
+        cout << "Algorithm: LRU\n";
+        cout << "Max Page read: "<<max_q<<endl;
+        cout << "Page read per file: "<<q<<endl;
+        cout << "Frames: "<<frames<<endl;
+        cout << "Buckets: "<<bucket<<endl<<endl;
+
     }
-    lru(q,4,frames,max_q);
-    //Second_chance(q,1,frames,max_q);
+    else{
+        cout << "Algorithm: ";
+        if(algorithm==0)
+            cout << "LRU\n";
+        else
+            cout << "SECOND_CHANCE\n";
+        cout << "Max Page read: "<<max_q<<endl;
+        cout << "Page read per file: "<<q<<endl;
+        cout << "Frames: "<<frames<<endl;
+        cout << "Buckets: "<<bucket<<endl<<endl;
+    }
 
+    if(max_q % q != 0){
+        cout<< "Max q cant divided \n";
+        //return 0;
+    }
+    if(max_q>1000000){
+        cout<< "Read max = 1000000\nExit\n";
+        return 0;
+    }
 
+    if (algorithm==0) {
+        cout << "LRU\n";
+        lru(q,bucket,frames,max_q);
+    }else{
+        cout << "SECOND_CHANCE\n";
+        Second_chance(q,bucket,frames,max_q);
+    }
 
     return 0;
 }
@@ -363,7 +406,6 @@ void Second_chance(int q,int bucketsNo,int frames,int MAX_Q){
 
                                 ///////////
                                 if(oldestP1->t < oldestP2->t){//replace from p1 table
-                                    cout<< "P1 MPIKA P1<P2\n";
                                     if(oldestP1==P1oldest_page->head->r){// if all buckets has 1 we done them 0 and take the older
                                         temp=P1oldest_page->head;
                                         while(temp!=NULL){
