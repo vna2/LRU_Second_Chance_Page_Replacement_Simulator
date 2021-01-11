@@ -12,7 +12,6 @@
 #include <vector>
 #include "hash_table.hpp"
 
-
 using namespace std;
 class hash_table;
 

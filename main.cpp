@@ -20,6 +20,7 @@ int main(int argc, char const *argv[]) {
     int max_q=1000000;
     int bucket=5;
     int algorithm=0;
+
     for (int i = 1; i < argc; i+=2)
         if(!strcmp(argv[i],"-A"))
             algorithm=atoi(argv[i+1]);
@@ -62,10 +63,8 @@ int main(int argc, char const *argv[]) {
     }
 
     if (algorithm==0) {
-        cout << "LRU\n";
         lru(q,bucket,frames,max_q);
     }else{
-        cout << "SECOND_CHANCE\n";
         Second_chance(q,bucket,frames,max_q);
     }
 

@@ -18,6 +18,5 @@ hash_table.o: hash_table.cpp
 list.o: list.cpp
 	$(CC) $(FLAGS) list.cpp -std=c11
 
-
 clean:
 	rm -f $(OBJS) $(OUT)

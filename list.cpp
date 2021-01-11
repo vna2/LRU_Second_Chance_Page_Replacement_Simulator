@@ -10,8 +10,7 @@ Page::Page(char* _address,unsigned int _address_num,char* _role,unsigned int _ti
     dirty=false;
 }
 
-void Page::print()
-{
+void Page::print(){
     cout<<"Address: "<<address<<endl;
     cout<<"Address_num: "<<address_num<<endl;
     cout<<"Time: "<<t<<endl;

@@ -11,7 +11,6 @@
 
 using namespace std;
 
-
 bucket::bucket(){
     page= new listPg;
 }
