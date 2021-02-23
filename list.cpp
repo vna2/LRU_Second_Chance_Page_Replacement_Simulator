@@ -48,8 +48,8 @@ if(alg==1){
                 if(strcmp(temp->r->role,"W")==0){
                     pg->dirty= true;
                 }
-                oldest_page->delete_item(pg);
-                oldest_page->push_back(pg);
+                //oldest_page->delete_item(pg);
+                //oldest_page->push_back(pg);
                 temp->r=pg;
                 temp->r->Second_chance=true;
                 temp->r->t =pg->t;
@@ -60,8 +60,8 @@ if(alg==1){
                 if(strcmp(temp->r->role,"W")==0){
                     pg->dirty= true;
                 }
-                oldest_page->delete_item(pg);
-                oldest_page->push_back(pg);
+                //oldest_page->delete_item(pg);
+                //oldest_page->push_back(pg);
                 temp->r=pg;
                 temp->r->t =pg->t;
                 temp->r->address_num=pg->address_num;
